@@ -1652,7 +1652,7 @@ function PlatformPage({ setActivePage, setActiveVertical }) {
   );
 }
 
-function VerticalListingsPage({ vertical, currentUser, setActivePage }) {
+function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenListing }) {
   const locations = useLocationOptions();
   const verticalInfo = findVertical(vertical);
   const VerticalIcon = verticalInfo?.icon || ShieldCheck;
@@ -1814,7 +1814,7 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage }) {
           {loading ? (
             <EmptyHomeState text="Loading listings..." />
           ) : listings.length ? (
-            pagination.pageItems.map((listing) => <ListingCard key={listing._id} listing={listing} />)
+            pagination.pageItems.map((listing) => <ListingCard key={listing._id} listing={listing} onOpen={onOpenListing} />)
           ) : (
             <EmptyHomeState text={`No live ${(verticalInfo?.name || vertical).toLowerCase()} listings yet. Verified listings will appear here soon.`} />
           )}
@@ -1870,6 +1870,148 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage }) {
           )) : <EmptyHomeState text="You haven't listed anything in this category yet." />}
         </div>
       ) : null}
+    </section>
+  );
+}
+
+function ListingDetailPage({ listingId, vertical, setActivePage, onBack }) {
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [activeImage, setActiveImage] = useState(0);
+
+  useEffect(() => {
+    if (!listingId) return;
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    setActiveImage(0);
+
+    apiRequest(`/listings/${listingId}`)
+      .then((data) => {
+        if (!cancelled) setListing(data);
+      })
+      .catch((requestError) => {
+        if (!cancelled) setError(requestError.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [listingId]);
+
+  const verticalInfo = findVertical(listing?.vertical || vertical);
+  const VerticalIcon = verticalInfo?.icon || ShieldCheck;
+
+  if (loading) {
+    return (
+      <section className="page listing-detail-page">
+        <div className="admin-loading"><Clock3 className="spin" size={24} /> Loading listing details...</div>
+      </section>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <section className="page listing-detail-page">
+        <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back</button>
+        <EmptyHomeState text={error || 'This listing is not available anymore.'} />
+      </section>
+    );
+  }
+
+  const images = listing.images || [];
+  const location = [listing.city, listing.country].filter(Boolean).join(', ') || 'Worldwide';
+  const priceLabel = Number(listing.price) ? `$${Number(listing.price).toLocaleString()}` : null;
+  const detailEntries = Object.entries(listing.details || {}).filter(([, value]) => value !== '' && value !== null && value !== undefined);
+
+  return (
+    <section className="page listing-detail-page">
+      <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to {verticalInfo?.name || 'listings'}</button>
+
+      <div className="gig-detail-hero">
+        <div className="gig-detail-main">
+          <div className="job-status-line">
+            <span className="status-pill">{listing.status === 'approved' ? 'Live listing' : listing.status}</span>
+          </div>
+          <h1>{listing.title}</h1>
+          <div className="listing-tags">
+            <span className="listing-vertical-tag"><VerticalIcon size={13} /> {verticalInfo?.name || listing.vertical}</span>
+            {listing.category ? <span className="listing-category-tag">{listing.category}</span> : null}
+          </div>
+          <div className="job-detail-row">
+            <span><MapPin size={16} /> {location}</span>
+            {priceLabel ? <span><Calculator size={16} /> {priceLabel}</span> : null}
+          </div>
+        </div>
+        {priceLabel ? (
+          <div className="gig-detail-price-card">
+            <span>Price</span>
+            <strong>{priceLabel}</strong>
+            <p>Verified through platform moderation before publishing.</p>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="gig-detail-grid">
+        <article className="gig-detail-panel wide">
+          <h2>Photos</h2>
+          {images.length ? (
+            <>
+              <div className="listing-detail-hero-image">
+                <img src={resolveUploadUrl(images[activeImage])} alt={`${listing.title} photo ${activeImage + 1}`} />
+              </div>
+              {images.length > 1 ? (
+                <div className="gig-detail-portfolio listing-detail-thumbs">
+                  {images.map((image, index) => (
+                    <img
+                      key={`${image}-${index}`}
+                      src={resolveUploadUrl(image)}
+                      alt={`${listing.title} thumbnail ${index + 1}`}
+                      className={index === activeImage ? 'active' : ''}
+                      onClick={() => setActiveImage(index)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="gig-detail-empty-media">
+              <ImagePlus size={28} />
+              <p>No photos have been added to this listing yet.</p>
+            </div>
+          )}
+        </article>
+
+        <article className="gig-detail-panel wide">
+          <h2>Description</h2>
+          <p>{listing.description || 'No description provided.'}</p>
+        </article>
+
+        {detailEntries.length ? (
+          <article className="gig-detail-panel wide">
+            <h2>Details</h2>
+            <div className="listing-detail-list">
+              {detailEntries.map(([key, value]) => (
+                <div key={key}><span>{key}</span><strong>{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}</strong></div>
+              ))}
+            </div>
+          </article>
+        ) : null}
+
+        <article className="gig-detail-panel">
+          <h2>Trust and safety</h2>
+          <div className="job-detail-facts">
+            <span><strong>Reviewed</strong>Every listing is checked by the platform team before it goes live.</span>
+            <span><strong>Location</strong>{location}</span>
+            <span><strong>Category</strong>{listing.category || verticalInfo?.name || 'General'}</span>
+          </div>
+          <span className="listing-detail-note"><ShieldCheck size={15} /> Contact the poster safely once you are logged in.</span>
+        </article>
+      </div>
     </section>
   );
 }
@@ -2087,6 +2229,11 @@ function verticalFromPath(path) {
   return match?.[1] || '';
 }
 
+function listingDetailFromPath(path) {
+  const match = path.match(/^\/platform\/([a-z0-9-]+)\/([^/]+)$/);
+  return match ? { vertical: match[1], listingId: match[2] } : null;
+}
+
 const PATH_TO_PAGE = {
   '/': 'home',
   '/jobs': 'jobs',
@@ -2129,21 +2276,23 @@ function resolveInitialRoute() {
   const path = window.location.pathname;
   const jobId = jobIdFromPath(path);
   const gigId = gigIdFromPath(path);
+  const listingDetail = listingDetailFromPath(path);
   const vertical = verticalFromPath(path);
-  if (jobId) return { page: 'jobDetail', jobId, gigId: '', vertical: '' };
-  if (gigId) return { page: 'freelanceDetail', jobId: '', gigId, vertical: '' };
-  if (vertical) return { page: 'platformVertical', jobId: '', gigId: '', vertical };
-  if (isAdminPath(path)) return { page: 'admin', jobId: '', gigId: '', vertical: '' };
-  if (PATH_TO_PAGE[path]) return { page: PATH_TO_PAGE[path], jobId: '', gigId: '', vertical: '' };
+  if (jobId) return { page: 'jobDetail', jobId, gigId: '', vertical: '', listingId: '' };
+  if (gigId) return { page: 'freelanceDetail', jobId: '', gigId, vertical: '', listingId: '' };
+  if (listingDetail) return { page: 'listingDetail', jobId: '', gigId: '', vertical: listingDetail.vertical, listingId: listingDetail.listingId };
+  if (vertical) return { page: 'platformVertical', jobId: '', gigId: '', vertical, listingId: '' };
+  if (isAdminPath(path)) return { page: 'admin', jobId: '', gigId: '', vertical: '', listingId: '' };
+  if (PATH_TO_PAGE[path]) return { page: PATH_TO_PAGE[path], jobId: '', gigId: '', vertical: '', listingId: '' };
 
   try {
     const storedUser = JSON.parse(localStorage.getItem('topjobs_user'));
-    if (storedUser?.role === 'admin') return { page: 'admin', jobId: '', gigId: '', vertical: '' };
+    if (storedUser?.role === 'admin') return { page: 'admin', jobId: '', gigId: '', vertical: '', listingId: '' };
   } catch {
     // ignore malformed storage
   }
 
-  return { page: 'home', jobId: '', gigId: '', vertical: '' };
+  return { page: 'home', jobId: '', gigId: '', vertical: '', listingId: '' };
 }
 
 function applicationJobId(application) {
@@ -2156,6 +2305,7 @@ export default function App() {
   const [jobDetailId, setJobDetailId] = useState(() => resolveInitialRoute().jobId);
   const [gigDetailId, setGigDetailId] = useState(() => resolveInitialRoute().gigId);
   const [activeVertical, setActiveVertical] = useState(() => resolveInitialRoute().vertical);
+  const [listingDetailId, setListingDetailId] = useState(() => resolveInitialRoute().listingId);
   const [theme, setTheme] = useState(resolveInitialTheme);
   const marketplace = useMarketplaceData();
 
@@ -2197,11 +2347,18 @@ export default function App() {
       }
       return;
     }
+    if (activePage === 'listingDetail') {
+      const path = listingDetailId ? `/platform/${activeVertical}/${listingDetailId}` : `/platform/${activeVertical}`;
+      if (window.location.pathname !== path) {
+        window.history.pushState(null, '', path);
+      }
+      return;
+    }
     const path = PAGE_TO_PATH[activePage] || '/';
     if (window.location.pathname !== path) {
       window.history.pushState(null, '', path);
     }
-  }, [activePage, jobDetailId, gigDetailId, activeVertical]);
+  }, [activePage, jobDetailId, gigDetailId, activeVertical, listingDetailId]);
 
   useEffect(() => {
     function onPopState() {
@@ -2210,6 +2367,7 @@ export default function App() {
       setJobDetailId(route.jobId || '');
       setGigDetailId(route.gigId || '');
       setActiveVertical(route.vertical || '');
+      setListingDetailId(route.listingId || '');
     }
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -2290,6 +2448,13 @@ export default function App() {
     setActivePage('platformVertical');
   }
 
+  function openListingDetails(listing) {
+    if (!listing?._id) return;
+    setActiveVertical(listing.vertical);
+    setListingDetailId(listing._id);
+    setActivePage('listingDetail');
+  }
+
   function markJobApplied(jobId) {
     if (!jobId) return;
     setAppliedJobIds((current) => {
@@ -2312,7 +2477,8 @@ export default function App() {
     freelance: <FreelancePage marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onOpenGig={openGigDetails} />,
     freelanceDetail: <GigDetailPage gigId={gigDetailId} marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onBack={() => setActivePage('freelance')} />,
     platform: <PlatformPage setActivePage={setActivePage} setActiveVertical={setActiveVertical} />,
-    platformVertical: <VerticalListingsPage vertical={activeVertical} currentUser={currentUser} setActivePage={setActivePage} />,
+    platformVertical: <VerticalListingsPage vertical={activeVertical} currentUser={currentUser} setActivePage={setActivePage} onOpenListing={openListingDetails} />,
+    listingDetail: <ListingDetailPage listingId={listingDetailId} vertical={activeVertical} currentUser={currentUser} setActivePage={setActivePage} onBack={() => setActivePage('platformVertical')} />,
     admin: <AdminDashboard onLogout={logout} />,
     adminLogin: <main className="auth-page admin-page"><AdminLoginForm onAuthSuccess={handleAuthSuccess} /></main>,
     login: <main className="auth-page"><AuthForm mode="login" onAuthSuccess={handleAuthSuccess} onSwitchMode={() => setActivePage('signup')} /></main>,
@@ -2327,7 +2493,7 @@ export default function App() {
 
   return (
     <div className={`app theme-${theme}`}>
-      <Navbar activePage={activePage === 'jobDetail' ? 'jobs' : activePage === 'freelanceDetail' ? 'freelance' : activePage} setActivePage={setActivePage} currentUser={currentUser} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} onOpenVertical={openVertical} />
+      <Navbar activePage={activePage === 'jobDetail' ? 'jobs' : activePage === 'freelanceDetail' ? 'freelance' : activePage === 'listingDetail' ? 'platformVertical' : activePage} setActivePage={setActivePage} currentUser={currentUser} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} onOpenVertical={openVertical} />
       {pages[activePage]}
       <Footer />
     </div>
