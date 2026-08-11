@@ -7494,3 +7494,47 @@ html[data-theme="dark"] .home-categories {
     align-items: flex-start;
   }
 }
+
+/* Listing detail page */
+
+.listing-detail-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.listing-detail-hero-image {
+  min-height: 340px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #dceaf3;
+  background: #effbff;
+  margin-bottom: 12px;
+}
+
+.listing-detail-hero-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  object-fit: cover;
+  display: block;
+}
+
+.listing-detail-thumbs img {
+  min-height: 84px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.18s ease, border-color 0.18s ease;
+}
+
+.listing-detail-thumbs img:hover {
+  opacity: 1;
+}
+
+.listing-detail-thumbs img.active {
+  opacity: 1;
+  border-color: var(--blue);
+}
