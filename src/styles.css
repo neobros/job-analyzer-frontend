@@ -7891,6 +7891,31 @@ html[data-theme="dark"] .platform-tile {
   }
 }
 
+/* Home page news/demo video: plays once scrolled into view */
+
+.news-video-section {
+  background: transparent;
+  padding: clamp(34px, 5vw, 58px);
+  border-radius: 34px;
+}
+
+.news-demo-video {
+  display: block;
+  width: 100%;
+  max-height: 640px;
+  border-radius: 22px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  background: #000;
+  object-fit: cover;
+}
+
+@media (max-width: 680px) {
+  .news-demo-video {
+    max-height: 320px;
+  }
+}
+
 /* Home page reviews: write-a-review form + testimonial slider */
 
 .reviews-section {
