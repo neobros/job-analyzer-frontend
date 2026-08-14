@@ -1,18 +1,17 @@
-import { Briefcase, BriefcaseBusiness, Building2, Home, LogIn, LogOut, Menu, Moon, PlusCircle, Rocket, ShieldCheck, Sparkles, Sun, User, UserPlus } from 'lucide-react';
+import { BriefcaseBusiness, Home, LogIn, LogOut, Menu, Moon, PlusCircle, Rocket, ShieldCheck, Sparkles, Sun, User, UserPlus } from 'lucide-react';
 import { VERTICALS } from '../constants/verticals.js';
 import liveInAusLogo from '../assets/liveinaus-logo.png';
 
 const ROLE_ICONS = {
-  job_seeker: Briefcase,
-  employer: Building2,
-  freelancer: Rocket,
+  user: User,
+  supplier: Rocket,
   admin: ShieldCheck
 };
 
 export default function Navbar({ activePage, setActivePage, currentUser, onLogout, theme = 'light', onToggleTheme, onOpenVertical }) {
   const trailingNavItems = [
     ...(currentUser ? [['profile', 'Profile', User]] : []),
-    ...(currentUser?.role === 'employer' || currentUser?.role === 'admin' ? [['employer', 'Post Job', PlusCircle]] : []),
+    ...(currentUser?.role === 'supplier' || currentUser?.role === 'admin' ? [['employer', 'Post Job', PlusCircle]] : []),
     ...(currentUser?.role === 'admin' ? [['admin', 'Admin', ShieldCheck]] : [])
   ];
   const RoleIcon = currentUser ? ROLE_ICONS[currentUser.role] || User : null;

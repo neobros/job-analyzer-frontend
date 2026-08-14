@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   BadgeCheck,
   BriefcaseBusiness,
+  CalendarCheck,
   CheckCircle2,
   Clock3,
   Copy,
@@ -41,9 +42,16 @@ function resolveUploadUrl(relativePath) {
   return `${UPLOAD_ORIGIN}/${relativePath.replace(/\\/g, '/')}`;
 }
 
-const emptyData = { dashboard: {}, users: [], jobs: [], gigs: [], applications: [], reviews: [], locations: [], listings: [] };
+function maskEmail(email) {
+  if (!email) return 'Unknown';
+  const [local, domain] = email.split('@');
+  if (!domain) return '*********';
+  return `*********${local.slice(-3)}@${domain}`;
+}
 
-const ADMIN_TABS = ['dashboard', 'users', 'sellers', 'approvals', 'listings', 'applications', 'feedback', 'locations', 'activity', 'suspicious'];
+const emptyData = { dashboard: {}, users: [], jobs: [], gigs: [], applications: [], reviews: [], locations: [], listings: [], appointments: [] };
+
+const ADMIN_TABS = ['dashboard', 'users', 'sellers', 'approvals', 'listings', 'appointments', 'applications', 'feedback', 'locations', 'activity', 'suspicious'];
 
 function tabFromPath(pathname) {
   const segment = pathname.replace(/^\/admin\/?/, '');
@@ -142,7 +150,7 @@ export default function AdminDashboard({ onLogout }) {
   const [activity, setActivity] = useState([]);
   const [locationForm, setLocationForm] = useState({ country: '', iso2: '', cities: '' });
   const [cityForms, setCityForms] = useState({});
-  const [userForm, setUserForm] = useState({ fullName: '', email: '', password: '', role: 'job_seeker', country: '', city: '', hasPriorityBadge: false });
+  const [userForm, setUserForm] = useState({ fullName: '', email: '', password: '', role: 'user', country: '', city: '', hasPriorityBadge: false });
   const [showAddUser, setShowAddUser] = useState(false);
   const [resetPasswordUser, setResetPasswordUser] = useState(null);
   const [passwordForm, setPasswordForm] = useState({ password: '' });
@@ -174,7 +182,7 @@ export default function AdminDashboard({ onLogout }) {
     setLoading(true);
     setError('');
     try {
-      const [dashboard, users, jobs, gigs, applications, reviews, locations, listings] = await Promise.all([
+      const [dashboard, users, jobs, gigs, applications, reviews, locations, listings, appointments] = await Promise.all([
         apiRequest('/admin/dashboard'),
         apiRequest('/admin/users'),
         apiRequest('/admin/jobs'),
@@ -182,9 +190,10 @@ export default function AdminDashboard({ onLogout }) {
         apiRequest('/admin/applications'),
         apiRequest('/admin/reviews'),
         apiRequest('/admin/locations'),
-        apiRequest('/admin/listings')
+        apiRequest('/admin/listings'),
+        apiRequest('/admin/appointments')
       ]);
-      setData({ dashboard, users, jobs, gigs, applications, reviews, locations, listings });
+      setData({ dashboard, users, jobs, gigs, applications, reviews, locations, listings, appointments });
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -234,8 +243,8 @@ export default function AdminDashboard({ onLogout }) {
     setNotice('');
     try {
       await apiRequest('/admin/users', { method: 'POST', body: JSON.stringify(userForm) });
-      record(`${userForm.email} added as ${userForm.role.replace('_', ' ')}`);
-      setUserForm({ fullName: '', email: '', password: '', role: 'job_seeker', country: '', city: '', hasPriorityBadge: false });
+      record(`${maskEmail(userForm.email)} added as ${userForm.role}`);
+      setUserForm({ fullName: '', email: '', password: '', role: 'user', country: '', city: '', hasPriorityBadge: false });
       setShowAddUser(false);
       await loadAdminData();
     } catch (requestError) {
@@ -300,7 +309,7 @@ export default function AdminDashboard({ onLogout }) {
         method: 'PATCH',
         body: JSON.stringify({ password: passwordForm.password })
       });
-      record(`Password reset for ${resetPasswordUser.email}`);
+      record(`Password reset for ${maskEmail(resetPasswordUser.email)}`);
       setResetPasswordUser(null);
     } catch (requestError) {
       setError(requestError.message);
@@ -324,7 +333,7 @@ export default function AdminDashboard({ onLogout }) {
         method: 'PUT',
         body: JSON.stringify({ rating: Number(reviewForm.rating), feedback: reviewForm.feedback })
       });
-      record(`Feedback from ${editingReview.reviewer?.email || 'unknown reviewer'} updated`);
+      record(`Feedback from ${maskEmail(editingReview.reviewer?.email)} updated`);
       setEditingReview(null);
       await loadAdminData();
     } catch (requestError) {
@@ -405,9 +414,10 @@ export default function AdminDashboard({ onLogout }) {
 
   const counts = {
     users: data.users.length,
-    sellers: data.users.filter((user) => user.role === 'freelancer').length,
+    sellers: data.users.filter((user) => user.role === 'supplier').length,
     approvals: data.jobs.filter((job) => job.status === 'pending').length + data.gigs.filter((gig) => gig.status === 'pending').length,
     listings: data.listings.filter((item) => item.status === 'pending').length,
+    appointments: data.appointments.filter((item) => item.status === 'pending').length,
     applications: data.applications.length,
     feedback: data.reviews.filter((review) => review.status === 'pending').length,
     locations: data.locations.length,
@@ -416,15 +426,16 @@ export default function AdminDashboard({ onLogout }) {
 
   const filter = (value) => String(value || '').toLowerCase().includes(query.toLowerCase());
   const filteredUsers = data.users.filter((user) => filter(user.email) || filter(user.role));
-  const sellers = filteredUsers.filter((user) => user.role === 'freelancer');
+  const sellers = filteredUsers.filter((user) => user.role === 'supplier');
   const suspicious = filteredUsers.filter((user) => user.isBlocked || !user.isEmailVerified || !user.isVerifiedByAdmin);
 
   const headerTitles = {
     dashboard: ['Operations overview', 'Live marketplace totals and moderation workload.'],
     users: ['User management', 'Verify, restrict, unblock, and inspect registered accounts.'],
-    sellers: ['Seller management', 'Control freelancer verification and account access.'],
+    sellers: ['Supplier management', 'Control supplier verification and account access.'],
     approvals: ['Post approvals', 'Review jobs and service gigs before publication.'],
     listings: ['Listing management', 'Review and moderate listings across all 15 marketplace verticals.'],
+    appointments: ['Appointment requests', 'Approve or decline appointment requests for migration lawyers and doctors.'],
     applications: ['Application monitoring', 'Track applications without exposing direct contact details.'],
     feedback: ['Feedback moderation', 'Approve valid ratings and reject reported or fake feedback.'],
     locations: ['Location management', 'Control the countries and cities shown in signup and job search.'],
@@ -487,14 +498,15 @@ export default function AdminDashboard({ onLogout }) {
                 ['Jobs', data.dashboard.jobs || 0, BriefcaseBusiness],
                 ['Gigs', data.dashboard.gigs || 0, Store],
                 ['Listings', data.dashboard.listings || 0, Layers3],
+                ['Appointments', data.dashboard.appointments || 0, CalendarCheck],
                 ['Applications', data.dashboard.applications || 0, MessageSquare],
                 ['Reviews', data.dashboard.reviews || 0, Star],
                 ['Locations', data.dashboard.locations || 0, MapPinned]
               ].map(([label, value, Icon]) => <article key={label}><Icon size={20} /><strong>{value}</strong><span>{label}</span></article>)}
             </div>
             <div className="admin-overview-grid">
-              <section className="admin-data-panel"><h2>Moderation queue</h2><div className="queue-metric"><span>Pending jobs</span><strong>{data.jobs.filter((item) => item.status === 'pending').length}</strong></div><div className="queue-metric"><span>Pending gigs</span><strong>{data.gigs.filter((item) => item.status === 'pending').length}</strong></div><div className="queue-metric"><span>Pending listings</span><strong>{counts.listings}</strong></div><div className="queue-metric"><span>Pending reviews</span><strong>{counts.feedback}</strong></div></section>
-              <section className="admin-data-panel"><h2>Account health</h2><div className="queue-metric"><span>Verified users</span><strong>{data.users.filter((item) => item.isVerifiedByAdmin).length}</strong></div><div className="queue-metric"><span>Priority badge users</span><strong>{data.users.filter((item) => item.hasPriorityBadge).length}</strong></div><div className="queue-metric"><span>Email unverified</span><strong>{data.users.filter((item) => !item.isEmailVerified).length}</strong></div><div className="queue-metric"><span>Blocked users</span><strong>{data.users.filter((item) => item.isBlocked).length}</strong></div></section>
+              <section className="admin-data-panel"><h2>Moderation queue</h2><div className="queue-metric"><span>Pending jobs</span><strong>{data.jobs.filter((item) => item.status === 'pending').length}</strong></div><div className="queue-metric"><span>Pending gigs</span><strong>{data.gigs.filter((item) => item.status === 'pending').length}</strong></div><div className="queue-metric"><span>Pending listings</span><strong>{counts.listings}</strong></div><div className="queue-metric"><span>Pending appointments</span><strong>{counts.appointments}</strong></div><div className="queue-metric"><span>Pending reviews</span><strong>{counts.feedback}</strong></div></section>
+              <section className="admin-data-panel"><h2>Account health</h2><div className="queue-metric"><span>Verified users</span><strong>{data.users.filter((item) => item.isVerifiedByAdmin).length}</strong></div><div className="queue-metric"><span>Gold Verified users</span><strong>{data.users.filter((item) => item.hasPriorityBadge).length}</strong></div><div className="queue-metric"><span>Email unverified</span><strong>{data.users.filter((item) => !item.isEmailVerified).length}</strong></div><div className="queue-metric"><span>Blocked users</span><strong>{data.users.filter((item) => item.isBlocked).length}</strong></div></section>
             </div>
           </div>
         ) : null}
@@ -506,9 +518,8 @@ export default function AdminDashboard({ onLogout }) {
               <input name="email" type="email" value={userForm.email} onChange={(event) => updateUserForm('email', event.target.value)} placeholder="Email address" required />
               <input name="password" type="password" value={userForm.password} onChange={(event) => updateUserForm('password', event.target.value)} placeholder="Temporary password" required />
               <select name="role" value={userForm.role} onChange={(event) => updateUserForm('role', event.target.value)}>
-                <option value="job_seeker">Job seeker</option>
-                <option value="employer">Employer</option>
-                <option value="freelancer">Freelancer</option>
+                <option value="user">User</option>
+                <option value="supplier">Supplier</option>
                 <option value="admin">Admin</option>
               </select>
               <label className="admin-check-row">
@@ -517,7 +528,7 @@ export default function AdminDashboard({ onLogout }) {
                   checked={userForm.hasPriorityBadge}
                   onChange={(event) => updateUserForm('hasPriorityBadge', event.target.checked)}
                 />
-                <span><BadgeCheck size={16} /> Priority badge user</span>
+                <span><BadgeCheck size={16} /> Gold Verified user</span>
               </label>
               <CustomSelect
                 icon={Globe2}
@@ -543,7 +554,7 @@ export default function AdminDashboard({ onLogout }) {
         ) : null}
 
         {editingReview ? (
-          <Modal title="Edit feedback" subtitle={editingReview.reviewer?.email || 'Unknown reviewer'} onClose={() => setEditingReview(null)}>
+          <Modal title="Edit feedback" subtitle={maskEmail(editingReview.reviewer?.email)} onClose={() => setEditingReview(null)}>
             <form className="admin-create-form modal-form" onSubmit={saveReviewEdit}>
               <select value={reviewForm.rating} onChange={(event) => setReviewForm((current) => ({ ...current, rating: event.target.value }))}>
                 {[5, 4, 3, 2, 1].map((value) => <option key={value} value={value}>{value} star{value === 1 ? '' : 's'}</option>)}
@@ -564,7 +575,7 @@ export default function AdminDashboard({ onLogout }) {
         ) : null}
 
         {resetPasswordUser ? (
-          <Modal title="Reset password" subtitle={resetPasswordUser.email} onClose={() => setResetPasswordUser(null)}>
+          <Modal title="Reset password" subtitle={maskEmail(resetPasswordUser.email)} onClose={() => setResetPasswordUser(null)}>
             <form className="admin-create-form modal-form" onSubmit={savePasswordReset}>
               <p className="admin-security-note">Current password cannot be viewed. Set a new temporary password here, copy it, then share it with the user.</p>
               <input
@@ -600,7 +611,7 @@ export default function AdminDashboard({ onLogout }) {
             <form className="admin-create-form modal-form" onSubmit={saveListingNotes}>
               <p className="admin-security-note">{viewingListing.description}</p>
               <div className="listing-detail-list">
-                <div><span>Owner</span><strong>{viewingListing.owner?.email || 'Unknown'}</strong></div>
+                <div><span>Owner</span><strong>{maskEmail(viewingListing.owner?.email)}</strong></div>
                 <div><span>Category</span><strong>{viewingListing.category || '—'}</strong></div>
                 <div><span>Price</span><strong>{Number(viewingListing.price) ? `$${Number(viewingListing.price).toLocaleString()}` : '—'}</strong></div>
                 <div><span>Location</span><strong>{[viewingListing.city, viewingListing.country].filter(Boolean).join(', ') || '—'}</strong></div>
@@ -650,6 +661,16 @@ export default function AdminDashboard({ onLogout }) {
             onAction={runAction}
             onDelete={deleteWithConfirm}
             onView={openListingDetails}
+          />
+        ) : null}
+
+        {!loading && active === 'appointments' ? (
+          <AppointmentsTable
+            key={query}
+            items={data.appointments.filter((item) => filter(item.listing?.title) || filter(item.requester?.email))}
+            workingId={workingId}
+            onAction={runAction}
+            onDelete={deleteWithConfirm}
           />
         ) : null}
 
@@ -710,17 +731,17 @@ function UserTable({ users, workingId, onAction, onDelete, onResetPassword }) {
   return (
     <section className="admin-data-panel table-panel">
       <div className="admin-data-row admin-data-head users">
-        <span>Account</span><span>Role</span><span>Email</span><span>Admin check</span><span>Badge</span><span>Access</span><span>Password</span><span>Actions</span>
+        <span>Account</span><span>Role</span><span>Email</span><span>Admin check</span><span>Gold Verified</span><span>Access</span><span>Password</span><span>Actions</span>
       </div>
       {pagination.pageItems.map((user) => {
         const isWorking = workingId === user._id || workingId === `password-${user._id}`;
         return (
           <div className="admin-data-row users" key={user._id}>
-            <span><strong>{user.email}</strong><small>Joined {new Date(user.createdAt).toLocaleDateString()}</small></span>
+            <span><strong>{maskEmail(user.email)}</strong><small>Joined {new Date(user.createdAt).toLocaleDateString()}</small></span>
             <span>{user.role}</span>
             <span><Status value={user.isEmailVerified ? 'Verified' : 'Unverified'} /></span>
             <span><Status value={user.isVerifiedByAdmin ? 'Approved' : 'Pending'} /></span>
-            <span><Status value={user.hasPriorityBadge ? 'Priority' : 'Normal'} /></span>
+            <span><Status value={user.hasPriorityBadge ? 'Gold' : 'Standard'} /></span>
             <span><Status value={user.isBlocked ? 'Blocked' : 'Active'} /></span>
             <span className="admin-password-cell">
               <strong>Protected</strong>
@@ -729,16 +750,16 @@ function UserTable({ users, workingId, onAction, onDelete, onResetPassword }) {
               </button>
             </span>
             <span className="admin-row-actions">
-              <button className="compact-button approve" disabled={isWorking} onClick={() => onAction(user._id, () => apiRequest(`/admin/users/${user._id}`, { method: 'PATCH', body: JSON.stringify({ isVerifiedByAdmin: !user.isVerifiedByAdmin, isBlocked: user.isBlocked, role: user.role, hasPriorityBadge: user.hasPriorityBadge }) }), user.isVerifiedByAdmin ? `Verification removed for ${user.email}` : `${user.email} verified`)}>
+              <button className="compact-button approve" disabled={isWorking} onClick={() => onAction(user._id, () => apiRequest(`/admin/users/${user._id}`, { method: 'PATCH', body: JSON.stringify({ isVerifiedByAdmin: !user.isVerifiedByAdmin, isBlocked: user.isBlocked, role: user.role, hasPriorityBadge: user.hasPriorityBadge }) }), user.isVerifiedByAdmin ? `Verification removed for ${maskEmail(user.email)}` : `${maskEmail(user.email)} verified`)}>
                 <UserCheck size={15} />{user.isVerifiedByAdmin ? 'Unverify' : 'Verify'}
               </button>
-              <button className={`compact-button ${user.hasPriorityBadge ? 'danger' : 'approve'}`} disabled={isWorking} onClick={() => onAction(user._id, () => apiRequest(`/admin/users/${user._id}`, { method: 'PATCH', body: JSON.stringify({ hasPriorityBadge: !user.hasPriorityBadge, isBlocked: user.isBlocked, isVerifiedByAdmin: user.isVerifiedByAdmin, role: user.role }) }), user.hasPriorityBadge ? `Priority badge removed for ${user.email}` : `${user.email} marked as priority badge user`)}>
-                <BadgeCheck size={15} />{user.hasPriorityBadge ? 'Unbadge' : 'Badge'}
+              <button className={`compact-button ${user.hasPriorityBadge ? 'danger' : 'approve'}`} disabled={isWorking} onClick={() => onAction(user._id, () => apiRequest(`/admin/users/${user._id}`, { method: 'PATCH', body: JSON.stringify({ hasPriorityBadge: !user.hasPriorityBadge, isBlocked: user.isBlocked, isVerifiedByAdmin: user.isVerifiedByAdmin, role: user.role }) }), user.hasPriorityBadge ? `Gold Verified removed for ${maskEmail(user.email)}` : `${maskEmail(user.email)} marked as Gold Verified`)}>
+                <BadgeCheck size={15} />{user.hasPriorityBadge ? 'Remove Gold' : 'Make Gold'}
               </button>
-              <button className="compact-button danger" disabled={isWorking} onClick={() => onAction(user._id, () => apiRequest(`/admin/users/${user._id}`, { method: 'PATCH', body: JSON.stringify({ isBlocked: !user.isBlocked, isVerifiedByAdmin: user.isVerifiedByAdmin, role: user.role, hasPriorityBadge: user.hasPriorityBadge }) }), user.isBlocked ? `${user.email} unblocked` : `${user.email} blocked`)}>
+              <button className="compact-button danger" disabled={isWorking} onClick={() => onAction(user._id, () => apiRequest(`/admin/users/${user._id}`, { method: 'PATCH', body: JSON.stringify({ isBlocked: !user.isBlocked, isVerifiedByAdmin: user.isVerifiedByAdmin, role: user.role, hasPriorityBadge: user.hasPriorityBadge }) }), user.isBlocked ? `${maskEmail(user.email)} unblocked` : `${maskEmail(user.email)} blocked`)}>
                 {user.isBlocked ? <CheckCircle2 size={15} /> : <XCircle size={15} />}{user.isBlocked ? 'Unblock' : 'Block'}
               </button>
-              <button className="compact-button danger" disabled={isWorking} onClick={() => onDelete(user._id, `Delete ${user.email}? This cannot be undone.`, () => apiRequest(`/admin/users/${user._id}`, { method: 'DELETE' }), `${user.email} deleted`)}>
+              <button className="compact-button danger" disabled={isWorking} onClick={() => onDelete(user._id, `Delete ${maskEmail(user.email)}? This cannot be undone.`, () => apiRequest(`/admin/users/${user._id}`, { method: 'DELETE' }), `${maskEmail(user.email)} deleted`)}>
                 <Trash2 size={15} />Delete
               </button>
             </span>
@@ -752,14 +773,14 @@ function UserTable({ users, workingId, onAction, onDelete, onResetPassword }) {
 
 function ApprovalDetailsModal({ item, kind, notes, onNotesChange, onClose, onSubmit, saving }) {
   const isJob = kind === 'job';
-  const ownerEmail = isJob ? item.employer?.email : item.seller?.email;
+  const ownerEmail = maskEmail(isJob ? item.employer?.email : item.seller?.email);
 
   return (
     <Modal title={item.title} subtitle={isJob ? 'Job post' : 'Service gig'} onClose={onClose}>
       <form className="admin-create-form modal-form" onSubmit={onSubmit}>
         <p className="admin-security-note">{item.description}</p>
         <div className="listing-detail-list">
-          <div><span>Owner</span><strong>{ownerEmail || 'Unknown'}</strong></div>
+          <div><span>Owner</span><strong>{ownerEmail}</strong></div>
           <div><span>Category</span><strong>{item.category || '—'}</strong></div>
           <div><span>Status</span><strong>{item.status}</strong></div>
           <div><span>Posted</span><strong>{new Date(item.createdAt).toLocaleDateString()}</strong></div>
@@ -840,7 +861,7 @@ function ModerationTable({ title, items, ownerKey, workingId, onAction, onDelete
           {pagination.pageItems.map((item) => (
             <div className="admin-data-row posts" key={item._id}>
               <span><strong>{item.title}</strong><small>{new Date(item.createdAt).toLocaleDateString()}</small></span>
-              <span>{item[ownerKey]?.email || 'Unknown'}</span>
+              <span>{maskEmail(item[ownerKey]?.email)}</span>
               <span>{item.category}</span>
               <span><Status value={item.status} /></span>
               <span className="admin-row-actions">
@@ -884,7 +905,7 @@ function ListingsModerationTable({ items, workingId, onAction, onDelete, onView 
             return (
               <div className="admin-data-row listings" key={item._id}>
                 <span><strong>{item.title}</strong><small>{new Date(item.createdAt).toLocaleDateString()}</small></span>
-                <span>{item.owner?.email || 'Unknown'}</span>
+                <span>{maskEmail(item.owner?.email)}</span>
                 <span className="listing-vertical-badge">{VerticalIcon ? <VerticalIcon size={14} /> : null} {vertical?.name || item.vertical}</span>
                 <span>{item.category || '—'}</span>
                 <span><Status value={item.status} /></span>
@@ -912,6 +933,41 @@ function ListingsModerationTable({ items, workingId, onAction, onDelete, onView 
           <Pagination {...pagination} onChange={pagination.setPage} />
         </>
       ) : <EmptyState text="No listings found." />}
+    </section>
+  );
+}
+
+function AppointmentsTable({ items, workingId, onAction, onDelete }) {
+  const pagination = usePagination(items, ADMIN_PAGE_SIZE);
+  if (!items.length) return <EmptyState text="No appointment requests found." />;
+  return (
+    <section className="admin-data-panel table-panel">
+      <div className="admin-data-row admin-data-head appointments"><span>Requester</span><span>Listing</span><span>Date &amp; time</span><span>Notes</span><span>Status</span><span>Actions</span></div>
+      {pagination.pageItems.map((item) => (
+        <div className="admin-data-row appointments" key={item._id}>
+          <span>{maskEmail(item.requester?.email)}</span>
+          <span><strong>{item.listing?.title || 'Deleted listing'}</strong></span>
+          <span>{new Date(item.date).toLocaleDateString()}{item.preferredTime ? ` at ${item.preferredTime}` : ''}</span>
+          <span>{item.notes || '—'}</span>
+          <span><Status value={item.status} /></span>
+          <span className="admin-row-actions">
+            {item.status !== 'approved' ? (
+              <button className="compact-button approve" disabled={workingId === item._id} onClick={() => onAction(item._id, () => apiRequest(`/admin/appointments/${item._id}/moderate`, { method: 'PATCH', body: JSON.stringify({ status: 'approved' }) }), `Appointment with ${maskEmail(item.requester?.email)} approved`)}>
+                <CheckCircle2 size={15} />Approve
+              </button>
+            ) : null}
+            {item.status !== 'declined' ? (
+              <button className="compact-button danger" disabled={workingId === item._id} onClick={() => onAction(item._id, () => apiRequest(`/admin/appointments/${item._id}/moderate`, { method: 'PATCH', body: JSON.stringify({ status: 'declined' }) }), `Appointment with ${maskEmail(item.requester?.email)} declined`)}>
+                <XCircle size={15} />Decline
+              </button>
+            ) : null}
+            <button className="compact-button danger" disabled={workingId === item._id} onClick={() => onDelete(item._id, 'Delete this appointment request? This cannot be undone.', () => apiRequest(`/admin/appointments/${item._id}`, { method: 'DELETE' }), 'Appointment deleted')}>
+              <Trash2 size={15} />Delete
+            </button>
+          </span>
+        </div>
+      ))}
+      <Pagination {...pagination} onChange={pagination.setPage} />
     </section>
   );
 }
@@ -1015,7 +1071,7 @@ function ReviewTable({ reviews, workingId, onAction, onDelete, onEdit }) {
       <div className="admin-data-row admin-data-head reviews"><span>Reviewer</span><span>Feedback</span><span>Rating</span><span>Status</span><span>Actions</span></div>
       {pagination.pageItems.map((item) => (
         <div className="admin-data-row reviews" key={item._id}>
-          <span>{item.reviewer?.email || 'Unknown'}</span>
+          <span>{maskEmail(item.reviewer?.email)}</span>
           <span><strong>{item.feedback}</strong></span>
           <span>{item.rating} / 5</span>
           <span><Status value={item.status} /></span>
