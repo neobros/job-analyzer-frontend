@@ -9,6 +9,7 @@ import {
   Landmark,
   Newspaper,
   Plane,
+  Rss,
   Scale,
   ShieldCheck,
   ShoppingBag,
@@ -32,7 +33,8 @@ export const VERTICALS = [
   { id: 'marketplace', icon: ShoppingBag, name: 'Marketplace', tagline: 'Buy and sell furniture, electronics, and everyday essentials directly with people in your new city.' },
   { id: 'food-lifestyle', icon: UtensilsCrossed, name: 'Food & Lifestyle', tagline: 'Explore restaurants, grocery stores, and lifestyle services that bring familiar comforts to a new home.' },
   { id: 'travel', icon: Plane, name: 'Travel', tagline: 'Plan flights, local tours, and getaways with travel providers experienced in relocation logistics.' },
-  { id: 'media', icon: Newspaper, name: 'Media', tagline: 'Stay informed with local news, classifieds, and community content made for the new-arrival audience.' }
+  { id: 'media', icon: Newspaper, name: 'Media', tagline: 'Stay informed with local news, classifieds, and community content made for the new-arrival audience.' },
+  { id: 'blog-news', icon: Rss, name: 'Blog & News', tagline: 'Read community blog posts, settlement stories, and breaking news written for new arrivals.' }
 ];
 
 export function findVertical(id) {
@@ -85,5 +87,8 @@ export const VERTICAL_DETAIL_FIELDS = {
   ],
   media: [
     { key: 'mediaType', label: 'Media type', type: 'text' }
+  ],
+  'blog-news': [
+    { key: 'topic', label: 'Topic', type: 'text' }
   ]
 };

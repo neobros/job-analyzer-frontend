@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AlertCircle, CheckCircle2, KeyRound, LoaderCircle, Mail, ShieldCheck } from 'lucide-react';
 import { apiRequest } from '../api.js';
+import liveInAusLogo from '../assets/liveinaus-logo.png';
 
 export default function AdminLoginForm({ onAuthSuccess }) {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -86,8 +87,8 @@ export default function AdminLoginForm({ onAuthSuccess }) {
     <section className="auth-shell admin-login-shell">
       <div className="auth-panel">
         <div className="auth-logo-row">
-          <span className="brand-mark"><ShieldCheck size={22} /></span>
-          <strong>TopJobs Thejan Admin</strong>
+          <img src={liveInAusLogo} alt="LiveInAus" className="brand-logo" />
+          <strong>Admin</strong>
         </div>
         <span className="eyebrow"><ShieldCheck size={16} /> Restricted access</span>
         <h1>Administrator sign in</h1>
