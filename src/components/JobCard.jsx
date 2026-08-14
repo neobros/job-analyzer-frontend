@@ -1,7 +1,7 @@
 import { BadgeCheck, Banknote, BriefcaseBusiness, CheckCircle2, Clock3, Heart, MapPin, Send, Share2, ShieldCheck } from 'lucide-react';
 
 export default function JobCard({ job, onApply, onOpen, applying = false, hasApplied = false }) {
-  const company = job.company || job.employer?.email || 'Verified employer';
+  const company = job.company || 'Verified employer';
   const status = job.status || 'approved';
   const statusLabel = status === 'approved' ? 'Live' : status.replace(/_/g, ' ');
   const skills = job.skills?.length ? job.skills : [job.category].filter(Boolean);
@@ -41,7 +41,7 @@ export default function JobCard({ job, onApply, onOpen, applying = false, hasApp
 
   return (
     <article
-      className={`job-card ${hasPriorityBadge ? 'priority-card' : ''} ${clickable ? 'job-card-clickable' : ''}`}
+      className={`job-card ${hasPriorityBadge ? 'gold-card' : ''} ${clickable ? 'job-card-clickable' : ''}`}
       onClick={clickable ? openDetails : undefined}
       onKeyDown={handleKeyDown}
       tabIndex={clickable ? 0 : undefined}
@@ -51,7 +51,7 @@ export default function JobCard({ job, onApply, onOpen, applying = false, hasApp
         <div className="job-listing-content">
           <div className="job-status-line">
             <span className="status-pill">{statusLabel}</span>
-            {hasPriorityBadge ? <span className="priority-badge"><BadgeCheck size={14} /> Priority employer</span> : null}
+            {hasPriorityBadge ? <span className="gold-badge"><BadgeCheck size={14} /> Gold Verified</span> : null}
           </div>
           <h3>{job.title}</h3>
           <p className="job-company">{company}</p>
@@ -74,7 +74,7 @@ export default function JobCard({ job, onApply, onOpen, applying = false, hasApp
 
         <div className="job-logo-box">
           <strong>{companyInitials}</strong>
-          <small>{company.split('@')[0]}</small>
+          <small>{company}</small>
         </div>
       </div>
 

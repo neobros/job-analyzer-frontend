@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, AlertTriangle, ArrowRight, BadgeCheck, BriefcaseBusiness, Calculator, CheckCircle2, ClipboardList, Clock3, Code2, Compass, ExternalLink, Eye, FileUp, Globe2, Handshake, Headphones, ImagePlus, Keyboard, Link, LockKeyhole, Mail, MapPin, Megaphone, MessageSquareMore, Newspaper, Palette, PenLine, Phone, PlusCircle, Search, ShieldCheck, Sparkles, Star, Store, Trash2, UploadCloud, User, UserCheck, Users, Wifi, Wrench, X } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowRight, BadgeCheck, BriefcaseBusiness, Calculator, CalendarCheck, CheckCircle2, ClipboardList, Clock3, Code2, Compass, ExternalLink, Eye, FileUp, Globe2, Handshake, Headphones, ImagePlus, Keyboard, Link, LockKeyhole, Mail, MapPin, Megaphone, MessageSquareMore, Newspaper, Palette, PenLine, PlusCircle, Scale, Search, ShieldCheck, Sparkles, Star, Stethoscope, Store, Trash2, UploadCloud, User, UserCheck, Users, Wifi, Wrench, X } from 'lucide-react';
 import Navbar from './components/Navbar.jsx';
 import ChatWidget from './components/ChatWidget.jsx';
 import Footer from './components/Footer.jsx';
@@ -290,13 +290,13 @@ function GigCard({ gig, onOpen }) {
 
   return (
     <article
-      className={`gig-card ${hasPriorityBadge ? 'priority-card' : ''} ${clickable ? 'gig-card-clickable' : ''}`}
+      className={`gig-card ${hasPriorityBadge ? 'gold-card' : ''} ${clickable ? 'gig-card-clickable' : ''}`}
       onClick={clickable ? openDetails : undefined}
       onKeyDown={handleKeyDown}
       tabIndex={clickable ? 0 : undefined}
       aria-label={clickable ? `Open details for ${gig.title}` : undefined}
     >
-      {hasPriorityBadge ? <span className="priority-badge"><BadgeCheck size={14} /> Priority seller</span> : null}
+      {hasPriorityBadge ? <span className="gold-badge"><BadgeCheck size={14} /> Gold Verified</span> : null}
       <div className="gig-image">
         {gig.portfolioImages?.[0] ? <img src={resolveUploadUrl(gig.portfolioImages[0])} alt="" /> : <FileUp size={26} />}
       </div>
@@ -390,15 +390,15 @@ function Home({ setActivePage, marketplace, onOpenVertical, currentUser }) {
           </div>
         </div>
         <div className="platform-grid home-platform-grid">
-          <button type="button" className="platform-tile" onClick={() => setActivePage('jobs')}>
+          <button type="button" className="platform-tile" style={{ '--tile-color': '#2563eb' }} onClick={() => setActivePage('jobs')}>
             <span className="platform-tile-icon"><BriefcaseBusiness size={22} /></span>
             <strong>Jobs & Careers</strong>
             <p>Search verified vacancies, apply safely, and track your applications.</p>
           </button>
-          {VERTICALS.map((vertical) => {
+          {VERTICALS.map((vertical, index) => {
             const Icon = vertical.icon;
             return (
-              <button type="button" key={vertical.id} className="platform-tile" onClick={() => onOpenVertical(vertical.id)}>
+              <button type="button" key={vertical.id} className="platform-tile" style={{ '--tile-color': vertical.color, '--tile-delay': `${(index % 8) * 220}ms` }} onClick={() => onOpenVertical(vertical.id)}>
                 <span className="platform-tile-icon"><Icon size={22} /></span>
                 <strong>{vertical.name}</strong>
                 <p>{vertical.tagline}</p>
@@ -669,7 +669,7 @@ function ReviewsSection({ currentUser, setActivePage }) {
               <div className="review-slide-card" key={active._id}>
                 <RatingComponent value={active.rating} />
                 <p className="review-slide-text">&ldquo;{active.feedback}&rdquo;</p>
-                <span className="review-slide-author">{active.reviewer?.email || 'LiveInAus member'}</span>
+                <span className="review-slide-author">LiveInAus member</span>
               </div>
               {reviews.length > 1 ? (
                 <div className="review-slide-controls">
@@ -822,7 +822,6 @@ function JobsPage({ marketplace, currentUser, setActivePage, onOpenJob, appliedJ
       const searchableText = [
         job.title,
         job.company,
-        job.employer?.email,
         job.category,
         job.description,
         job.requirements,
@@ -1051,7 +1050,7 @@ function JobDetailPage({ jobId, marketplace, currentUser, setActivePage, onBack,
     );
   }
 
-  const company = job.company || job.employer?.email || 'Verified employer';
+  const company = job.company || 'Verified employer';
   const skills = job.skills?.length ? job.skills : [job.category].filter(Boolean);
   const typeLabel = (job.type || 'full_time').replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
   const location = [job.city, job.country].filter(Boolean).join(', ') || 'Worldwide';
@@ -1070,11 +1069,11 @@ function JobDetailPage({ jobId, marketplace, currentUser, setActivePage, onBack,
     <section className="page job-detail-page">
       <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Jobs</button>
 
-      <div className={`job-detail-hero ${hasPriorityBadge ? 'priority-card' : ''}`}>
+      <div className={`job-detail-hero ${hasPriorityBadge ? 'gold-card' : ''}`}>
         <div className="job-detail-main">
           <div className="job-status-line">
             <span className="status-pill">{job.status === 'approved' ? 'Live' : job.status}</span>
-            {hasPriorityBadge ? <span className="priority-badge"><BadgeCheck size={14} /> Priority employer</span> : null}
+            {hasPriorityBadge ? <span className="gold-badge"><BadgeCheck size={14} /> Gold Verified</span> : null}
           </div>
           <h1>{job.title}</h1>
           <p>{company}</p>
@@ -1212,7 +1211,7 @@ function GigDetailPage({ gigId, marketplace, currentUser, setActivePage, onBack 
     );
   }
 
-  const seller = gig.seller?.email || 'Verified freelancer';
+  const seller = 'Verified freelancer';
   const portfolioImages = gig.portfolioImages || [];
   const hasPriorityBadge = Boolean(gig.hasPriorityBadge || gig.seller?.hasPriorityBadge);
   const priceLabel = Number(gig.price) ? `$${Number(gig.price).toLocaleString()}` : 'Custom quote';
@@ -1227,11 +1226,11 @@ function GigDetailPage({ gigId, marketplace, currentUser, setActivePage, onBack 
     <section className="page gig-detail-page">
       <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Freelance</button>
 
-      <div className={`gig-detail-hero ${hasPriorityBadge ? 'priority-card' : ''}`}>
+      <div className={`gig-detail-hero ${hasPriorityBadge ? 'gold-card' : ''}`}>
         <div className="gig-detail-main">
           <div className="job-status-line">
             <span className="status-pill">{gig.status === 'approved' ? 'Live service' : gig.status}</span>
-            {hasPriorityBadge ? <span className="priority-badge"><BadgeCheck size={14} /> Priority seller</span> : null}
+            {hasPriorityBadge ? <span className="gold-badge"><BadgeCheck size={14} /> Gold Verified</span> : null}
           </div>
           <h1>{gig.title}</h1>
           <p>{seller}</p>
@@ -1310,7 +1309,7 @@ function ProfileAvatar({ src }) {
 function ProfilePage({ currentUser, setActivePage }) {
   const locations = useLocationOptions();
   const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({ fullName: '', skills: [], experience: '', country: '', city: '', about: '', phone: '', contactEmail: '', website: '' });
+  const [form, setForm] = useState({ fullName: '', skills: [], experience: '', country: '', city: '', about: '', contactEmail: '', website: '' });
   const [skillDraft, setSkillDraft] = useState('');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
@@ -1367,7 +1366,6 @@ function ProfilePage({ currentUser, setActivePage }) {
       country: data?.country || '',
       city: data?.city || '',
       about: data?.about || '',
-      phone: data?.hiddenContact?.phone || '',
       contactEmail: data?.hiddenContact?.email || data?.user?.email || currentUser?.email || '',
       website: data?.hiddenContact?.website || ''
     });
@@ -1437,7 +1435,6 @@ function ProfilePage({ currentUser, setActivePage }) {
       body.append('country', form.country);
       body.append('city', form.city);
       body.append('about', form.about);
-      body.append('phone', form.phone);
       body.append('contactEmail', form.contactEmail);
       body.append('website', form.website);
       if (cvFile) body.append('cvFile', cvFile);
@@ -1458,7 +1455,7 @@ function ProfilePage({ currentUser, setActivePage }) {
 
   const avatarSrc = photoPreview || resolveUploadUrl(profile?.profilePhoto);
   const account = profile?.user || currentUser || {};
-  const roleLabel = (account.role || 'job_seeker').replace(/_/g, ' ');
+  const roleLabel = account.role || 'user';
   const hasPriorityBadge = Boolean(account.hasPriorityBadge || profile?.hasPriorityBadge);
   const locationText = [form.city, form.country].filter(Boolean).join(', ') || 'Location not added';
   const websiteUrl = form.website ? (form.website.startsWith('http') ? form.website : `https://${form.website}`) : '';
@@ -1470,7 +1467,7 @@ function ProfilePage({ currentUser, setActivePage }) {
     Boolean(form.country && form.city),
     Boolean(profile?.cvFile || cvFile),
     Boolean(profile?.profilePhoto || photoFile),
-    Boolean(form.phone || form.contactEmail || form.website)
+    Boolean(form.contactEmail || form.website)
   ];
   const completion = Math.round((completionItems.filter(Boolean).length / completionItems.length) * 100);
   const statusLabels = {
@@ -1500,7 +1497,7 @@ function ProfilePage({ currentUser, setActivePage }) {
           <p>{form.about || 'Add your skills, CV, experience, and protected contact details so employers and clients can review your profile safely.'}</p>
           <div className="profile-meta-row">
             <span><UserCheck size={15} /> {roleLabel}</span>
-            {hasPriorityBadge ? <span className="priority-badge"><BadgeCheck size={15} /> Top verified badge</span> : null}
+            {hasPriorityBadge ? <span className="gold-badge"><BadgeCheck size={15} /> Gold Verified</span> : null}
             <span><MapPin size={15} /> {locationText}</span>
             <span><ShieldCheck size={15} /> Contact hidden publicly</span>
           </div>
@@ -1543,10 +1540,6 @@ function ProfilePage({ currentUser, setActivePage }) {
             <label className="profile-field">
               <span>City</span>
               <CustomSelect icon={MapPin} value={form.city} placeholder={form.country ? 'City' : 'Choose country first'} disabled={!form.country} options={cities.map((city) => ({ value: city.name, label: city.name }))} onChange={(value) => updateField('city', value)} />
-            </label>
-            <label className="profile-field">
-              <span>Private phone</span>
-              <input placeholder="Hidden from public" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} />
             </label>
             <label className="profile-field">
               <span>Private email</span>
@@ -1606,7 +1599,6 @@ function ProfilePage({ currentUser, setActivePage }) {
             </div>
             <div className="contact-list">
               <span><Mail size={16} /> {form.contactEmail || account.email || 'Add contact email'}</span>
-              <span><Phone size={16} /> {form.phone || 'Add phone number'}</span>
               <span><Link size={16} /> {form.website || 'Add website'}</span>
             </div>
             {websiteUrl ? <a className="ghost-button" href={websiteUrl} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Open portfolio</a> : null}
@@ -1779,7 +1771,6 @@ function FreelancePage({ marketplace, currentUser, setActivePage, onOpenGig }) {
     return gigs.filter((gig) => {
       const searchableText = [
         gig.title,
-        gig.seller?.email,
         gig.category,
         gig.description,
         gig.deliveryTime,
@@ -1826,7 +1817,7 @@ function FreelancePage({ marketplace, currentUser, setActivePage, onOpenGig }) {
 
   async function postGig() {
     if (!currentUser) {
-      setError('Please login as a freelancer before creating a service gig.');
+      setError('Please login as a supplier before creating a service gig.');
       setActivePage('login');
       return;
     }
@@ -1837,8 +1828,8 @@ function FreelancePage({ marketplace, currentUser, setActivePage, onOpenGig }) {
       return;
     }
 
-    if (!['freelancer', 'admin'].includes(currentUser.role)) {
-      setError('Only freelancer accounts can create service gigs.');
+    if (!['supplier', 'admin'].includes(currentUser.role)) {
+      setError('Only supplier accounts can create service gigs.');
       return;
     }
 
@@ -1930,7 +1921,7 @@ function FreelancePage({ marketplace, currentUser, setActivePage, onOpenGig }) {
           <span><ShieldCheck size={15} /> Admin contact check</span>
           <span><ImagePlus size={15} /> Portfolio supported</span>
           <span><Star size={15} /> Moderated ratings</span>
-          <span><BadgeCheck size={15} /> Priority sellers first</span>
+          <span><BadgeCheck size={15} /> Gold Verified sellers first</span>
         </div>
 
         <div className="gig-grid freelance-results-grid">
@@ -1943,7 +1934,7 @@ function FreelancePage({ marketplace, currentUser, setActivePage, onOpenGig }) {
         <h2>Create a service gig</h2>
         <FeedbackNotice>{notice}</FeedbackNotice>
         <FeedbackNotice type="error">{error}</FeedbackNotice>
-        {currentUser && ['freelancer', 'admin'].includes(currentUser.role) ? (
+        {currentUser && ['supplier', 'admin'].includes(currentUser.role) ? (
           <>
             <div className="form-grid">
               <input placeholder="Service title" value={form.title} onChange={(event) => updateField('title', event.target.value)} />
@@ -1969,7 +1960,7 @@ function FreelancePage({ marketplace, currentUser, setActivePage, onOpenGig }) {
         ) : (
           <div className="auth-inline-card">
             <ShieldCheck size={24} />
-            <p>Login with a freelancer account to create service gigs. Buyers can still browse approved services.</p>
+            <p>Login with a supplier account to create service gigs. Everyone can still browse approved services.</p>
             <button className="primary-button" onClick={() => setActivePage(currentUser ? 'profile' : 'login')}>{currentUser ? 'Open Profile' : 'Login'}</button>
           </div>
         )}
@@ -1992,15 +1983,15 @@ function PlatformPage({ setActivePage, setActiveVertical }) {
         <p>From your first night to your first year, find verified listings and services across every part of settling into a new country.</p>
       </div>
       <div className="platform-grid">
-        <button type="button" className="platform-tile" onClick={() => setActivePage('jobs')}>
+        <button type="button" className="platform-tile" style={{ '--tile-color': '#2563eb' }} onClick={() => setActivePage('jobs')}>
           <span className="platform-tile-icon"><BriefcaseBusiness size={24} /></span>
           <strong>Jobs & Careers</strong>
           <p>Search verified vacancies, apply safely, and track your applications.</p>
         </button>
-        {VERTICALS.map((vertical) => {
+        {VERTICALS.map((vertical, index) => {
           const Icon = vertical.icon;
           return (
-            <button type="button" key={vertical.id} className="platform-tile" onClick={() => openVertical(vertical.id)}>
+            <button type="button" key={vertical.id} className="platform-tile" style={{ '--tile-color': vertical.color, '--tile-delay': `${(index % 8) * 220}ms` }} onClick={() => openVertical(vertical.id)}>
               <span className="platform-tile-icon"><Icon size={24} /></span>
               <strong>{vertical.name}</strong>
               <p>{vertical.tagline}</p>
@@ -2022,6 +2013,7 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
   const [listings, setListings] = useState([]);
   const [myListings, setMyListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [professionType, setProfessionType] = useState('');
   const [filters, setFilters] = useState({ keyword: '', category: '', country: '', city: '' });
   const [form, setForm] = useState({ title: '', category: '', description: '', price: '', country: '', city: '' });
   const [detailValues, setDetailValues] = useState({});
@@ -2074,7 +2066,14 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
     setDetailValues({});
     setNotice('');
     setError('');
+    setProfessionType('');
   }, [vertical]);
+
+  function chooseProfessionType(type) {
+    setProfessionType(type);
+    setFilters((current) => ({ ...current, category: type }));
+    setForm((current) => ({ ...current, category: type }));
+  }
 
   useEffect(() => {
     loadListings();
@@ -2104,7 +2103,7 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
 
   async function postListing() {
     if (!currentUser) {
-      setError('Please login before creating a listing.');
+      setError('Please login as a supplier before creating a listing.');
       setActivePage('login');
       return;
     }
@@ -2112,6 +2111,11 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
     if (!currentUser.isEmailVerified) {
       setError('Email verification is required before creating a listing.');
       setActivePage('login');
+      return;
+    }
+
+    if (!['supplier', 'admin'].includes(currentUser.role)) {
+      setError('Only supplier accounts can create listings.');
       return;
     }
 
@@ -2150,12 +2154,41 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
     }
   }
 
+  if (vertical === 'migration' && !professionType) {
+    return (
+      <section className="page">
+        <div className="page-heading">
+          <span className="eyebrow"><VerticalIcon size={16} /> {verticalInfo?.name || vertical}</span>
+          <h1>Who would you like to book an appointment with?</h1>
+          <p>Choose a professional type to see verified providers and request an appointment.</p>
+        </div>
+        <div className="profession-type-picker">
+          <button type="button" className="profession-type-card" onClick={() => chooseProfessionType('Lawyer')}>
+            <span className="profession-type-icon"><Scale size={28} /></span>
+            <strong>Lawyers</strong>
+            <p>Registered migration and immigration lawyers for visa and legal advice.</p>
+          </button>
+          <button type="button" className="profession-type-card" onClick={() => chooseProfessionType('Doctor')}>
+            <span className="profession-type-icon"><Stethoscope size={28} /></span>
+            <strong>Doctors</strong>
+            <p>Panel doctors for visa medical examinations and health checks.</p>
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="page">
       <div className="page-heading">
         <span className="eyebrow"><VerticalIcon size={16} /> {verticalInfo?.name || vertical}</span>
-        <h1>{verticalInfo?.tagline || 'Browse verified listings'}</h1>
+        <h1>{professionType ? `${professionType === 'Lawyer' ? 'Lawyers' : 'Doctors'} in ${verticalInfo?.name || vertical}` : (verticalInfo?.tagline || 'Browse verified listings')}</h1>
         <p>Filter by category and location, or list your own to reach people who need it.</p>
+        {vertical === 'migration' ? (
+          <button type="button" className="ghost-button profession-type-change" onClick={() => setProfessionType('')}>
+            <ArrowRight className="flip-x" size={16} /> Change Lawyer / Doctor
+          </button>
+        ) : null}
       </div>
 
       <div className="freelance-browser-main">
@@ -2186,7 +2219,7 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
         <h2>List something in {verticalInfo?.name || vertical}</h2>
         <FeedbackNotice>{notice}</FeedbackNotice>
         <FeedbackNotice type="error">{error}</FeedbackNotice>
-        {currentUser && currentUser.isEmailVerified ? (
+        {currentUser && currentUser.isEmailVerified && ['supplier', 'admin'].includes(currentUser.role) ? (
           <>
             <div className="form-grid">
               <input placeholder="Title" value={form.title} onChange={(event) => updateField('title', event.target.value)} />
@@ -2213,8 +2246,14 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
         ) : (
           <div className="auth-inline-card">
             <ShieldCheck size={24} />
-            <p>{currentUser ? 'Verify your email to create a listing.' : 'Login to create a listing. Everyone can browse approved listings.'}</p>
-            <button className="primary-button" onClick={() => setActivePage(currentUser ? 'profile' : 'login')}>{currentUser ? 'Verify Email' : 'Login'}</button>
+            <p>
+              {!currentUser
+                ? 'Login with a supplier account to create a listing. Everyone can browse approved listings.'
+                : !currentUser.isEmailVerified
+                  ? 'Verify your email to create a listing.'
+                  : 'Only supplier accounts can create listings. Everyone can browse approved listings.'}
+            </p>
+            <button className="primary-button" onClick={() => setActivePage(currentUser ? 'profile' : 'login')}>{currentUser ? 'Open Profile' : 'Login'}</button>
           </div>
         )}
       </div>
@@ -2234,11 +2273,97 @@ function VerticalListingsPage({ vertical, currentUser, setActivePage, onOpenList
   );
 }
 
-function ListingDetailPage({ listingId, vertical, setActivePage, onBack }) {
+function toCalendarDateString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isSameCalendarDay(a, b) {
+  return Boolean(a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate());
+}
+
+function AppointmentCalendar({ value, onChange, minDate }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const min = minDate ? new Date(`${minDate}T00:00:00`) : today;
+  const selected = value ? new Date(`${value}T00:00:00`) : null;
+  const initial = selected || today;
+
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initial.getMonth());
+
+  function goPrevMonth() {
+    setViewMonth((current) => {
+      if (current === 0) {
+        setViewYear((year) => year - 1);
+        return 11;
+      }
+      return current - 1;
+    });
+  }
+
+  function goNextMonth() {
+    setViewMonth((current) => {
+      if (current === 11) {
+        setViewYear((year) => year + 1);
+        return 0;
+      }
+      return current + 1;
+    });
+  }
+
+  const firstOfMonth = new Date(viewYear, viewMonth, 1);
+  const startWeekday = firstOfMonth.getDay();
+  const monthLabel = firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const cells = Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(viewYear, viewMonth, index - startWeekday + 1);
+    return { date, current: date.getMonth() === viewMonth };
+  });
+
+  return (
+    <div className="calendar-widget">
+      <div className="calendar-header">
+        <button type="button" className="icon-button calendar-nav" onClick={goPrevMonth} aria-label="Previous month"><ArrowRight className="flip-x" size={16} /></button>
+        <strong>{monthLabel}</strong>
+        <button type="button" className="icon-button calendar-nav" onClick={goNextMonth} aria-label="Next month"><ArrowRight size={16} /></button>
+      </div>
+      <div className="calendar-weekdays">
+        {weekdayLabels.map((label) => <span key={label}>{label}</span>)}
+      </div>
+      <div className="calendar-grid">
+        {cells.map(({ date, current }) => {
+          const disabled = date < min;
+          const isSelected = isSameCalendarDay(date, selected);
+          const isToday = isSameCalendarDay(date, today);
+          return (
+            <button
+              type="button"
+              key={date.toISOString()}
+              className={`calendar-day ${current ? '' : 'outside'} ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}`}
+              disabled={disabled}
+              onClick={() => onChange(toCalendarDateString(date))}
+            >
+              {date.getDate()}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ListingDetailPage({ listingId, vertical, currentUser, setActivePage, onBack }) {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeImage, setActiveImage] = useState(0);
+  const [appointmentForm, setAppointmentForm] = useState({ date: '', preferredTime: '', notes: '' });
+  const [appointmentNotice, setAppointmentNotice] = useState('');
+  const [appointmentError, setAppointmentError] = useState('');
+  const [bookingAppointment, setBookingAppointment] = useState(false);
 
   useEffect(() => {
     if (!listingId) return;
@@ -2262,6 +2387,45 @@ function ListingDetailPage({ listingId, vertical, setActivePage, onBack }) {
       cancelled = true;
     };
   }, [listingId]);
+
+  function updateAppointmentField(name, value) {
+    setAppointmentForm((current) => ({ ...current, [name]: value }));
+  }
+
+  async function submitAppointment() {
+    if (!currentUser) {
+      setAppointmentError('Please login before booking an appointment.');
+      setActivePage('login');
+      return;
+    }
+
+    if (!currentUser.isEmailVerified) {
+      setAppointmentError('Email verification is required before booking an appointment.');
+      setActivePage('profile');
+      return;
+    }
+
+    if (!appointmentForm.date) {
+      setAppointmentError('Please choose a date.');
+      return;
+    }
+
+    setAppointmentNotice('');
+    setAppointmentError('');
+    setBookingAppointment(true);
+    try {
+      await apiRequest('/appointments', {
+        method: 'POST',
+        body: JSON.stringify({ listingId, date: appointmentForm.date, preferredTime: appointmentForm.preferredTime, notes: appointmentForm.notes })
+      });
+      setAppointmentNotice('Appointment requested. You will receive an email once it is approved or declined by the platform team.');
+      setAppointmentForm({ date: '', preferredTime: '', notes: '' });
+    } catch (requestError) {
+      setAppointmentError(requestError.message);
+    } finally {
+      setBookingAppointment(false);
+    }
+  }
 
   const verticalInfo = findVertical(listing?.vertical || vertical);
   const VerticalIcon = verticalInfo?.icon || ShieldCheck;
@@ -2371,6 +2535,49 @@ function ListingDetailPage({ listingId, vertical, setActivePage, onBack }) {
           </div>
           <span className="listing-detail-note"><ShieldCheck size={15} /> Contact the poster safely once you are logged in.</span>
         </article>
+
+        {listing.vertical === 'migration' ? (
+          <article className="gig-detail-panel appointment-panel">
+            <h2><CalendarCheck size={19} /> Book an appointment</h2>
+            <p className="listing-detail-note">Request a time with this migration lawyer or doctor. The platform team reviews every request before it is confirmed.</p>
+            <FeedbackNotice>{appointmentNotice}</FeedbackNotice>
+            <FeedbackNotice type="error">{appointmentError}</FeedbackNotice>
+            {currentUser && currentUser.isEmailVerified ? (
+              <div className="appointment-form">
+                <div className="appointment-field">
+                  <span>Date</span>
+                  <AppointmentCalendar
+                    value={appointmentForm.date}
+                    minDate={new Date().toISOString().slice(0, 10)}
+                    onChange={(date) => updateAppointmentField('date', date)}
+                  />
+                </div>
+                <label>
+                  <span>Preferred time</span>
+                  <input
+                    type="time"
+                    value={appointmentForm.preferredTime}
+                    onChange={(event) => updateAppointmentField('preferredTime', event.target.value)}
+                  />
+                </label>
+                <textarea
+                  placeholder="What would you like to discuss? (optional)"
+                  value={appointmentForm.notes}
+                  onChange={(event) => updateAppointmentField('notes', event.target.value)}
+                />
+                <button className="primary-button" disabled={bookingAppointment} onClick={submitAppointment}>
+                  {bookingAppointment ? 'Requesting...' : 'Request Appointment'}
+                </button>
+              </div>
+            ) : (
+              <div className="auth-inline-card">
+                <ShieldCheck size={24} />
+                <p>{currentUser ? 'Verify your email to book an appointment.' : 'Login to book an appointment.'}</p>
+                <button className="primary-button" onClick={() => setActivePage(currentUser ? 'profile' : 'login')}>{currentUser ? 'Verify Email' : 'Login'}</button>
+              </div>
+            )}
+          </article>
+        ) : null}
       </div>
     </section>
   );
@@ -2778,8 +2985,6 @@ export default function App() {
   function handleAuthSuccess(user) {
     setCurrentUser(user);
     if (user?.role === 'admin') setActivePage('admin');
-    else if (user?.role === 'employer') setActivePage('employer');
-    else if (user?.role === 'freelancer') setActivePage('freelance');
     else setActivePage('profile');
   }
 
@@ -2833,7 +3038,7 @@ export default function App() {
     jobs: <JobsPage marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onOpenJob={openJobDetails} appliedJobIds={appliedJobIds} onJobApplied={markJobApplied} />,
     jobDetail: <JobDetailPage jobId={jobDetailId} marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onBack={() => setActivePage('jobs')} appliedJobIds={appliedJobIds} onJobApplied={markJobApplied} />,
     profile: <AuthRequired currentUser={currentUser} setActivePage={setActivePage}><ProfilePage currentUser={currentUser} setActivePage={setActivePage} /></AuthRequired>,
-    employer: <AuthRequired currentUser={currentUser} setActivePage={setActivePage} roles={['employer', 'admin']}><EmployerPage marketplace={marketplace} /></AuthRequired>,
+    employer: <AuthRequired currentUser={currentUser} setActivePage={setActivePage} roles={['supplier', 'admin']}><EmployerPage marketplace={marketplace} /></AuthRequired>,
     freelance: <FreelancePage marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onOpenGig={openGigDetails} />,
     freelanceDetail: <GigDetailPage gigId={gigDetailId} marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onBack={() => setActivePage('freelance')} />,
     platform: <PlatformPage setActivePage={setActivePage} setActiveVertical={setActiveVertical} />,
@@ -2861,7 +3066,7 @@ export default function App() {
       <div className="app-content">
         <Navbar activePage={activePage === 'jobDetail' ? 'jobs' : activePage === 'freelanceDetail' ? 'freelance' : activePage === 'listingDetail' ? 'platformVertical' : activePage} setActivePage={setActivePage} currentUser={currentUser} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} onOpenVertical={openVertical} />
         {pages[activePage]}
-        <Footer />
+        <Footer setActivePage={setActivePage} onOpenVertical={openVertical} />
       </div>
     </div>
   );

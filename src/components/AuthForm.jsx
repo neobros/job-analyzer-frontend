@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ArrowRight, Building2, CheckCircle2, Globe2, KeyRound, LoaderCircle, Mail, MapPin, Rocket, ShieldCheck, Sparkles, User } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Globe2, KeyRound, LoaderCircle, Mail, MapPin, Rocket, ShieldCheck, Sparkles, User } from 'lucide-react';
 import { apiRequest } from '../api.js';
 import CustomSelect from './CustomSelect.jsx';
 import authImage from '../assets/marketplace-slide-1.png';
@@ -7,9 +7,8 @@ import authImageTwo from '../assets/marketplace-slide-3.png';
 import liveInAusLogo from '../assets/liveinaus-logo.png';
 
 const roleOptions = [
-  { value: 'job_seeker', label: 'Job seeker', note: 'Apply for approved jobs', icon: User },
-  { value: 'employer', label: 'Employer', note: 'Post vacancies for review', icon: Building2 },
-  { value: 'freelancer', label: 'Freelancer', note: 'Sell services and gigs', icon: Rocket }
+  { value: 'user', label: 'User', note: 'Browse and use every service on the platform', icon: User },
+  { value: 'supplier', label: 'Supplier', note: 'Post jobs, gigs, and listings for review', icon: Rocket }
 ];
 
 export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode }) {
@@ -20,7 +19,7 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
     password: '',
     country: '',
     city: '',
-    role: 'job_seeker'
+    role: 'user'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
