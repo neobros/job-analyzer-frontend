@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, AlertTriangle, ArrowRight, BadgeCheck, BriefcaseBusiness, Calculator, CheckCircle2, ClipboardList, Clock3, Code2, Compass, ExternalLink, Eye, FileUp, Globe2, Handshake, Headphones, ImagePlus, Keyboard, Link, LockKeyhole, Mail, MapPin, Megaphone, MessageSquareMore, Palette, PenLine, Phone, PlusCircle, Search, ShieldCheck, Sparkles, Star, Store, Trash2, UploadCloud, User, UserCheck, Users, Wifi, Wrench, X } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowRight, BadgeCheck, BriefcaseBusiness, Calculator, CheckCircle2, ClipboardList, Clock3, Code2, Compass, ExternalLink, Eye, FileUp, Globe2, Handshake, Headphones, ImagePlus, Keyboard, Link, LockKeyhole, Mail, MapPin, Megaphone, MessageSquareMore, Newspaper, Palette, PenLine, Phone, PlusCircle, Search, ShieldCheck, Sparkles, Star, Store, Trash2, UploadCloud, User, UserCheck, Users, Wifi, Wrench, X } from 'lucide-react';
 import Navbar from './components/Navbar.jsx';
 import ChatWidget from './components/ChatWidget.jsx';
 import Footer from './components/Footer.jsx';
@@ -204,6 +204,38 @@ function PartnerMarquee({ logos }) {
   );
 }
 
+function ScrollPlayVideo({ src }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.muted = false;
+          video.play().catch(() => {
+            // Most browsers block autoplay with sound until the visitor has
+            // interacted with the site; fall back to a muted autoplay so the
+            // video still starts instead of sitting frozen on scroll.
+            video.muted = true;
+            video.play().catch(() => {});
+          });
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.4 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  return <video ref={videoRef} className="news-demo-video" src={src} playsInline controls preload="metadata" />;
+}
+
 function useScrollReveal(activePage) {
   useEffect(() => {
     const targets = document.querySelectorAll([
@@ -395,6 +427,16 @@ function Home({ setActivePage, marketplace, onOpenVertical, currentUser }) {
           </div>
         </div>
         <PartnerMarquee logos={PARTNER_LOGOS} />
+      </section>
+      <section className="section news-video-section">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow"><Newspaper size={16} /> Media & News</span>
+            <h2>See LiveInAus news and community stories in action</h2>
+            <p>A quick look at how members stay updated with local news, classifieds, and community stories.</p>
+          </div>
+        </div>
+        <ScrollPlayVideo src="/videos/news-demo.mp4" />
       </section>
       <section className="website-intro">
         <div>
