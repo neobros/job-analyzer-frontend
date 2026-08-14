@@ -17,6 +17,7 @@ import RatingComponent from './components/RatingComponent.jsx';
 import { apiRequest, API_BASE_URL } from './api.js';
 import { VERTICALS, VERTICAL_DETAIL_FIELDS, findVertical } from './constants/verticals.js';
 import heroImage from './assets/hero-ai-marketplace.png';
+import mobileAppComingSoon from './assets/mobile-app-coming-soon.png';
 
 const RESULTS_PAGE_SIZE = 9;
 import marketplaceSlide1 from './assets/marketplace-slide-1.png';
@@ -437,6 +438,9 @@ function Home({ setActivePage, marketplace, onOpenVertical, currentUser }) {
           </div>
         </div>
         <ScrollPlayVideo src="/videos/news-demo.mp4" />
+      </section>
+      <section className="section mobile-app-banner">
+        <img src={mobileAppComingSoon} alt="LiveInAus mobile app coming soon — jobs, services, and support wherever you go" />
       </section>
       <section className="website-intro">
         <div>

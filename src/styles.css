@@ -2442,8 +2442,7 @@ body {
   box-shadow: 0 14px 26px rgba(47, 115, 242, 0.25);
 }
 
-.ghost-button,
-.ghost-on-image {
+.ghost-button {
   color: var(--blue);
   background: #fff;
   border-color: #c0d5fb;
@@ -6831,6 +6830,19 @@ html[data-theme="dark"] .profile-dashboard-hero {
   border-color: var(--glass-border);
 }
 
+/* These sections carry their own inner glass/photo card and must stay fully
+   transparent so the ambient background shows through; a single-class
+   selector loses to the ".section" rule above on specificity alone, so this
+   needs the same "html[data-theme=dark] .section-name" shape to actually win. */
+html[data-theme="dark"] .home-categories,
+html[data-theme="dark"] .community-section,
+html[data-theme="dark"] .partners-section,
+html[data-theme="dark"] .news-video-section,
+html[data-theme="dark"] .mobile-app-banner,
+html[data-theme="dark"] .reviews-section {
+  background: transparent;
+}
+
 html[data-theme="dark"] .category-card,
 html[data-theme="dark"] .job-card,
 html[data-theme="dark"] .profile-card,
@@ -7006,7 +7018,8 @@ html[data-theme="dark"] .upload-action-card,
 html[data-theme="dark"] .skill-builder,
 html[data-theme="dark"] .otp-verify-box,
 html[data-theme="dark"] .auth-inline-card,
-html[data-theme="dark"] .auth-required-panel {
+html[data-theme="dark"] .auth-required-panel,
+html[data-theme="dark"] .flow-user-summary {
   color: var(--ink);
   background: rgba(17, 27, 36, 0.72);
   border-color: var(--glass-border);
@@ -8251,6 +8264,22 @@ html[data-theme="dark"] .platform-tile {
   .news-demo-video {
     max-height: 320px;
   }
+}
+
+/* Home page mobile-app teaser banner */
+
+.mobile-app-banner {
+  background: transparent;
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.mobile-app-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Home page reviews: write-a-review form + testimonial slider */
