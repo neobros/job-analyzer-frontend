@@ -19,22 +19,22 @@ import {
 } from 'lucide-react';
 
 export const VERTICALS = [
-  { id: 'accommodation', icon: Home, name: 'Accommodation', tagline: 'Find verified rooms, shared housing, and short-stay rentals from hosts who understand the new-arrival journey.' },
-  { id: 'education', icon: GraduationCap, name: 'Education', tagline: 'Connect with language schools, tutors, and credential-recognition services to keep your learning and career plans on track.' },
-  { id: 'migration', icon: FileCheck, name: 'Migration', tagline: 'Work with vetted visa, immigration, and settlement consultants for every step of the relocation process.' },
-  { id: 'real-estate', icon: Building2, name: 'Real Estate', tagline: 'Browse verified property listings and connect with agents for renting or buying a long-term home.' },
-  { id: 'cars-transport', icon: Car, name: 'Cars & Transport', tagline: 'Buy, sell, or rent vehicles and compare local transport options from trusted sellers and providers.' },
-  { id: 'banking-finance', icon: Landmark, name: 'Banking & Finance', tagline: 'Get matched with banks, money-transfer services, and financial advisors experienced in supporting newcomers.' },
-  { id: 'insurance', icon: ShieldCheck, name: 'Insurance', tagline: 'Compare health, travel, auto, and life insurance options built around new-resident needs.' },
-  { id: 'utilities', icon: Zap, name: 'Utilities', tagline: 'Set up electricity, water, internet, and mobile plans quickly with providers who serve new arrivals.' },
-  { id: 'healthcare', icon: HeartPulse, name: 'Healthcare', tagline: 'Find doctors, clinics, and health services, including providers who support multiple languages.' },
-  { id: 'family-community', icon: Users, name: 'Family & Community', tagline: 'Discover childcare, schools, cultural associations, and community groups to help you build a support network.' },
-  { id: 'legal-tax', icon: Scale, name: 'Legal & Tax', tagline: 'Access lawyers, tax advisors, and notary services for contracts, filings, and legal peace of mind.' },
-  { id: 'marketplace', icon: ShoppingBag, name: 'Marketplace', tagline: 'Buy and sell furniture, electronics, and everyday essentials directly with people in your new city.' },
-  { id: 'food-lifestyle', icon: UtensilsCrossed, name: 'Food & Lifestyle', tagline: 'Explore restaurants, grocery stores, and lifestyle services that bring familiar comforts to a new home.' },
-  { id: 'travel', icon: Plane, name: 'Travel', tagline: 'Plan flights, local tours, and getaways with travel providers experienced in relocation logistics.' },
-  { id: 'media', icon: Newspaper, name: 'Media', tagline: 'Stay informed with local news, classifieds, and community content made for the new-arrival audience.' },
-  { id: 'blog-news', icon: Rss, name: 'Blog & News', tagline: 'Read community blog posts, settlement stories, and breaking news written for new arrivals.' }
+  { id: 'accommodation', icon: Home, name: 'Accommodation', tagline: 'Find verified rooms, shared housing, and short-stay rentals from hosts who understand the new-arrival journey.', color: '#f59e0b' },
+  { id: 'education', icon: GraduationCap, name: 'Education', tagline: 'Connect with language schools, tutors, and credential-recognition services to keep your learning and career plans on track.', color: '#8b5cf6' },
+  { id: 'migration', icon: FileCheck, name: 'Migration', tagline: 'Work with vetted visa, immigration, and settlement consultants for every step of the relocation process.', color: '#10b981' },
+  { id: 'real-estate', icon: Building2, name: 'Real Estate', tagline: 'Browse verified property listings and connect with agents for renting or buying a long-term home.', color: '#0ea5e9' },
+  { id: 'cars-transport', icon: Car, name: 'Cars & Transport', tagline: 'Buy, sell, or rent vehicles and compare local transport options from trusted sellers and providers.', color: '#ef4444' },
+  { id: 'banking-finance', icon: Landmark, name: 'Banking & Finance', tagline: 'Get matched with banks, money-transfer services, and financial advisors experienced in supporting newcomers.', color: '#14b8a6' },
+  { id: 'insurance', icon: ShieldCheck, name: 'Insurance', tagline: 'Compare health, travel, auto, and life insurance options built around new-resident needs.', color: '#6366f1' },
+  { id: 'utilities', icon: Zap, name: 'Utilities', tagline: 'Set up electricity, water, internet, and mobile plans quickly with providers who serve new arrivals.', color: '#eab308' },
+  { id: 'healthcare', icon: HeartPulse, name: 'Healthcare', tagline: 'Find doctors, clinics, and health services, including providers who support multiple languages.', color: '#ec4899' },
+  { id: 'family-community', icon: Users, name: 'Family & Community', tagline: 'Discover childcare, schools, cultural associations, and community groups to help you build a support network.', color: '#f97316' },
+  { id: 'legal-tax', icon: Scale, name: 'Legal & Tax', tagline: 'Access lawyers, tax advisors, and notary services for contracts, filings, and legal peace of mind.', color: '#a855f7' },
+  { id: 'marketplace', icon: ShoppingBag, name: 'Marketplace', tagline: 'Buy and sell furniture, electronics, and everyday essentials directly with people in your new city.', color: '#22c55e' },
+  { id: 'food-lifestyle', icon: UtensilsCrossed, name: 'Food & Lifestyle', tagline: 'Explore restaurants, grocery stores, and lifestyle services that bring familiar comforts to a new home.', color: '#fb7185' },
+  { id: 'travel', icon: Plane, name: 'Travel', tagline: 'Plan flights, local tours, and getaways with travel providers experienced in relocation logistics.', color: '#06b6d4' },
+  { id: 'media', icon: Newspaper, name: 'Media', tagline: 'Stay informed with local news, classifieds, and community content made for the new-arrival audience.', color: '#d946ef' },
+  { id: 'blog-news', icon: Rss, name: 'Blog & News', tagline: 'Read community blog posts, settlement stories, and breaking news written for new arrivals.', color: '#e11d48' }
 ];
 
 export function findVertical(id) {

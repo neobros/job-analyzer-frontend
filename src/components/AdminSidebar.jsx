@@ -1,12 +1,13 @@
-import { Activity, BarChart3, BriefcaseBusiness, Layers3, MapPinned, MessageSquare, ShieldAlert, Star, Store, Users } from 'lucide-react';
+import { Activity, BarChart3, BriefcaseBusiness, CalendarCheck, Layers3, MapPinned, MessageSquare, ShieldAlert, Star, Store, Users } from 'lucide-react';
 
 export default function AdminSidebar({ active = 'dashboard', onChange, counts = {} }) {
   const items = [
     ['dashboard', BarChart3, 'Dashboard'],
     ['users', Users, 'Users'],
-    ['sellers', Store, 'Sellers'],
+    ['sellers', Store, 'Suppliers'],
     ['approvals', BriefcaseBusiness, 'Post Approvals'],
     ['listings', Layers3, 'Listings'],
+    ['appointments', CalendarCheck, 'Appointments'],
     ['applications', MessageSquare, 'Applications'],
     ['feedback', Star, 'Feedback'],
     ['locations', MapPinned, 'Locations'],
