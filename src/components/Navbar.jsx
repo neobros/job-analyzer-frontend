@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { Briefcase, BriefcaseBusiness, Building2, ChevronDown, Compass, Home, LogIn, LogOut, Menu, Moon, PlusCircle, Rocket, ShieldCheck, Sparkles, Sun, User, UserPlus } from 'lucide-react';
+import { Briefcase, BriefcaseBusiness, Building2, Home, LogIn, LogOut, Menu, Moon, PlusCircle, Rocket, ShieldCheck, Sparkles, Sun, User, UserPlus } from 'lucide-react';
 import { VERTICALS } from '../constants/verticals.js';
+import liveInAusLogo from '../assets/liveinaus-logo.png';
 
 const ROLE_ICONS = {
   job_seeker: Briefcase,
@@ -8,61 +8,6 @@ const ROLE_ICONS = {
   freelancer: Rocket,
   admin: ShieldCheck
 };
-
-function ExploreMenu({ active, setActivePage, onOpenVertical }) {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    function onDocClick(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) setOpen(false);
-    }
-    function onKeyDown(event) {
-      if (event.key === 'Escape') setOpen(false);
-    }
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, []);
-
-  function selectJobs() {
-    setOpen(false);
-    setActivePage('jobs');
-  }
-
-  function selectVertical(id) {
-    setOpen(false);
-    onOpenVertical(id);
-  }
-
-  return (
-    <div className="nav-dropdown" ref={containerRef}>
-      <button className={active ? 'active' : ''} aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
-        <Compass size={16} /> Explore <ChevronDown size={14} className={`nav-dropdown-caret ${open ? 'open' : ''}`} />
-      </button>
-      {open ? (
-        <div className="nav-dropdown-menu">
-          <button className="nav-dropdown-item" onClick={selectJobs}>
-            <BriefcaseBusiness size={16} />
-            <span>Jobs & Careers</span>
-          </button>
-          {VERTICALS.map((vertical) => {
-            const Icon = vertical.icon;
-            return (
-              <button className="nav-dropdown-item" key={vertical.id} onClick={() => selectVertical(vertical.id)}>
-                <Icon size={16} />
-                <span>{vertical.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 export default function Navbar({ activePage, setActivePage, currentUser, onLogout, theme = 'light', onToggleTheme, onOpenVertical }) {
   const trailingNavItems = [
@@ -72,14 +17,14 @@ export default function Navbar({ activePage, setActivePage, currentUser, onLogou
   ];
   const RoleIcon = currentUser ? ROLE_ICONS[currentUser.role] || User : null;
   const isDark = theme === 'dark';
+  const isVerticalActive = activePage === 'platformVertical';
 
   return (
     <header className="navbar">
-      <button className="brand" onClick={() => setActivePage('home')} aria-label="TopJobs Thejan home">
-        <span className="brand-mark"><BriefcaseBusiness size={22} /></span>
-        <span>TopJobs Thejan</span>
+      <button className="brand" onClick={() => setActivePage('home')} aria-label="LiveInAus home">
+        <img src={liveInAusLogo} alt="LiveInAus" className="brand-logo" />
       </button>
-      <nav className="desktop-nav" aria-label="Primary navigation">
+      <nav className="desktop-nav wrap-nav" aria-label="Primary navigation">
         <button className={activePage === 'home' ? 'active' : ''} onClick={() => setActivePage('home')}>
           <Home size={16} /> Home
         </button>
@@ -89,7 +34,14 @@ export default function Navbar({ activePage, setActivePage, currentUser, onLogou
         <button className={activePage === 'freelance' ? 'active' : ''} onClick={() => setActivePage('freelance')}>
           <Sparkles size={16} /> Freelance
         </button>
-        <ExploreMenu active={activePage === 'platform' || activePage === 'platformVertical'} setActivePage={setActivePage} onOpenVertical={onOpenVertical} />
+        {VERTICALS.map((vertical) => {
+          const Icon = vertical.icon;
+          return (
+            <button key={vertical.id} className={isVerticalActive && activePage === vertical.id ? 'active' : ''} onClick={() => onOpenVertical(vertical.id)}>
+              <Icon size={13} /> {vertical.name}
+            </button>
+          );
+        })}
         {trailingNavItems.map(([id, label, Icon]) => (
           <button key={id} className={activePage === id ? 'active' : ''} onClick={() => setActivePage(id)}>
             <Icon size={16} /> {label}
