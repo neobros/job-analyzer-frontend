@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, AlertTriangle, ArrowRight, BadgeCheck, BriefcaseBusiness, Calculator, CheckCircle2, ClipboardList, Clock3, Code2, Compass, ExternalLink, Eye, FileUp, Globe2, Handshake, Headphones, ImagePlus, Keyboard, Link, LockKeyhole, Mail, MapPin, Megaphone, MessageSquareMore, Palette, PenLine, Phone, PlusCircle, Search, ShieldCheck, Sparkles, Star, Store, Trash2, UploadCloud, User, UserCheck, Users, Wifi, Wrench, X } from 'lucide-react';
 import Navbar from './components/Navbar.jsx';
+import ChatWidget from './components/ChatWidget.jsx';
 import Footer from './components/Footer.jsx';
 import SearchFilter from './components/SearchFilter.jsx';
 import JobCard from './components/JobCard.jsx';
@@ -22,6 +23,44 @@ import marketplaceSlide1 from './assets/marketplace-slide-1.png';
 import marketplaceSlide2 from './assets/marketplace-slide-2.jpg';
 import marketplaceSlide3 from './assets/marketplace-slide-3.png';
 import marketplaceSlide4 from './assets/marketplace-slide-4.jpg';
+import driftingLeaves from './assets/drifting-leaves.svg';
+import floatingParticles from './assets/floating-particles.svg';
+import flowingLines from './assets/flowing-lines.svg';
+import logoSweetTamarind from './assets/partners/sweet-tamarind.jpeg';
+import logoNirosKitchen from './assets/partners/niros-kitchen.jpeg';
+import logoPartnerBowl from './assets/partners/partner-bowl-icon.jpeg';
+import logoZeylonTv from './assets/partners/zeylon-tv.jpeg';
+import logoMelbourneNilame from './assets/partners/melbourne-nilame.jpeg';
+import logoSamsulCreation from './assets/partners/samsul-creation.jpeg';
+import logoPixelBooth from './assets/partners/pixel-booth.png';
+import logoTenthCarVan from './assets/partners/tenth-car-van-rental.png';
+import logoSkillCityRecruitment from './assets/partners/skill-city-recruitment.jpeg';
+import logoMelbourneTv from './assets/partners/melbourne-tv.png';
+import logoAutoglenDetailing from './assets/partners/autoglen-detailing.png';
+import logoStudioAmazingPlus from './assets/partners/studio-amazing-plus.png';
+import logoKandyCrown from './assets/partners/kandy-crown.png';
+import logoSkillCityFacility from './assets/partners/skill-city-facility-solutions.jpeg';
+import logoSkillCitySecurity from './assets/partners/skill-city-security.png';
+import logoSkillsyncAustralia from './assets/partners/skillsync-australia.jpeg';
+
+const PARTNER_LOGOS = [
+  { src: logoStudioAmazingPlus, name: 'Studio Amazing Plus' },
+  { src: logoAutoglenDetailing, name: 'AutoGlen Detailing' },
+  { src: logoSkillsyncAustralia, name: 'SkillSync Australia' },
+  { src: logoSkillCityFacility, name: 'Skill City Facility Solutions' },
+  { src: logoSkillCitySecurity, name: 'Skill City Security Services' },
+  { src: logoKandyCrown, name: 'Kandy Crown', dark: true },
+  { src: logoTenthCarVan, name: 'Tenth Car & Van Rental' },
+  { src: logoSkillCityRecruitment, name: 'Skill City Recruitment' },
+  { src: logoMelbourneTv, name: 'Melbourne TV' },
+  { src: logoPixelBooth, name: 'Pixel Booth' },
+  { src: logoMelbourneNilame, name: 'Melbourne Nilame' },
+  { src: logoSamsulCreation, name: 'Samsul Creation' },
+  { src: logoZeylonTv, name: 'Zeylon TV' },
+  { src: logoSweetTamarind, name: 'Sweet Tamarind' },
+  { src: logoNirosKitchen, name: "Niro's Kitchen" },
+  { src: logoPartnerBowl, name: 'Partner' }
+];
 
 function useMarketplaceData() {
   const [data, setData] = useState({ stats: {}, previousYearHighlights: {}, flow: {}, jobs: [], gigs: [], profiles: [], categories: [], allCategories: [], locations: [], loading: true, error: '' });
@@ -56,6 +95,113 @@ function useLocationOptions() {
 function FeedbackNotice({ type = 'success', children }) {
   if (!children) return null;
   return <div className={`auth-message ${type}`}>{children}</div>;
+}
+
+function IconOrbit({ children }) {
+  return (
+    <span className="icon-orbit">
+      <svg className="icon-orbit-ring" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" />
+      </svg>
+      {children}
+    </span>
+  );
+}
+
+const COMMUNITY_AVATAR_COLORS = ['#2f73f2', '#46c4ff', '#0f9d6e', '#f59e0b', '#a855f7', '#ef4444', '#10b981', '#0ea5e9'];
+
+function CommunityGlobe() {
+  const avatarCount = COMMUNITY_AVATAR_COLORS.length;
+  const center = 190;
+  const orbitRadius = 150;
+  const globeRadius = 72;
+
+  return (
+    <svg className="community-globe" viewBox="0 0 380 380" role="img" aria-label="Illustration of people from many backgrounds connected around a globe">
+      <defs>
+        <linearGradient id="communityGlobeGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="var(--blue)" />
+          <stop offset="100%" stopColor="var(--aqua)" />
+        </linearGradient>
+      </defs>
+      <circle className="community-globe-orbit-ring" cx={center} cy={center} r={orbitRadius} />
+      <circle className="community-globe-core" cx={center} cy={center} r={globeRadius} fill="url(#communityGlobeGradient)" />
+      <ellipse className="community-globe-meridian" cx={center} cy={center} rx={globeRadius * 0.42} ry={globeRadius} />
+      <ellipse className="community-globe-meridian" cx={center} cy={center} rx={globeRadius} ry={globeRadius * 0.42} />
+      {Array.from({ length: avatarCount }, (_, index) => {
+        const angle = (index / avatarCount) * Math.PI * 2 - Math.PI / 2;
+        const x = center + orbitRadius * Math.cos(angle);
+        const y = center + orbitRadius * Math.sin(angle);
+        const color = COMMUNITY_AVATAR_COLORS[index];
+        return (
+          <g key={index} className="community-avatar" style={{ '--avatar-delay': `${index * 90}ms` }}>
+            <line x1={center} y1={center} x2={x} y2={y} className="community-avatar-spoke" />
+            <circle cx={x} cy={y} r="22" fill={color} className="community-avatar-badge" />
+            <circle cx={x} cy={y - 6} r="6" fill="#fff" className="community-avatar-glyph" />
+            <path d={`M ${x - 9} ${y + 11} a 9 9 0 0 1 18 0 Z`} fill="#fff" className="community-avatar-glyph" />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function MarqueeRow({ logos, direction = 'left' }) {
+  const track = [...logos, ...logos];
+  const dragState = useRef(null);
+  const [dragging, setDragging] = useState(false);
+
+  function handleWheel(event) {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    event.currentTarget.scrollLeft += event.deltaY;
+    event.preventDefault();
+  }
+
+  function handleMouseDown(event) {
+    dragState.current = { startX: event.pageX, startScroll: event.currentTarget.scrollLeft };
+    setDragging(true);
+  }
+
+  function handleMouseMove(event) {
+    if (!dragState.current) return;
+    event.currentTarget.scrollLeft = dragState.current.startScroll - (event.pageX - dragState.current.startX);
+  }
+
+  function stopDragging() {
+    dragState.current = null;
+    setDragging(false);
+  }
+
+  return (
+    <div
+      className={`marquee-row ${dragging ? 'dragging' : ''}`}
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={stopDragging}
+      onMouseLeave={stopDragging}
+    >
+      <div className={`marquee-track marquee-${direction}`}>
+        {track.map((logo, index) => (
+          <div className={`marquee-logo ${logo.dark ? 'marquee-logo-dark' : ''}`} key={`${logo.name}-${index}`}>
+            <img src={logo.src} alt={logo.name} draggable="false" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PartnerMarquee({ logos }) {
+  const half = Math.ceil(logos.length / 2);
+  const rowOne = logos.slice(0, half);
+  const rowTwo = logos.slice(half);
+  return (
+    <div className="marquee-stack">
+      <MarqueeRow logos={rowOne} direction="left" />
+      <MarqueeRow logos={rowTwo} direction="right" />
+    </div>
+  );
 }
 
 function useScrollReveal(activePage) {
@@ -160,7 +306,7 @@ function FlowDetailCard({ number, title, description, items }) {
   );
 }
 
-function Home({ setActivePage, marketplace, onOpenVertical }) {
+function Home({ setActivePage, marketplace, onOpenVertical, currentUser }) {
   const benefitCards = [
     {
       icon: ShieldCheck,
@@ -229,17 +375,38 @@ function Home({ setActivePage, marketplace, onOpenVertical }) {
           })}
         </div>
       </section>
+      <section className="section community-section">
+        <div className="community-copy">
+          <span className="eyebrow"><Users size={16} /> A platform for everyone arriving somewhere new</span>
+          <h2>Built for people from every background</h2>
+          <p>
+            Wherever you are coming from, LiveInAus is designed to welcome you. Verified listings, protected
+            communication, and moderation that treats every community on the platform with the same respect.
+          </p>
+        </div>
+        <CommunityGlobe />
+      </section>
+      <section className="section partners-section">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow"><Handshake size={16} /> Trusted local partners</span>
+            <h2>Businesses our community already trusts</h2>
+            <p>Local partners across Melbourne and beyond who work with LiveInAus members.</p>
+          </div>
+        </div>
+        <PartnerMarquee logos={PARTNER_LOGOS} />
+      </section>
       <section className="website-intro">
         <div>
-          <span className="eyebrow">About TopJobs Thejan</span>
+          <span className="eyebrow">About LiveInAus</span>
           <h2>A trusted worldwide marketplace for jobs, talent, and freelance services</h2>
           <p>
-            TopJobs Thejan gives job seekers, employers, freelancers, and service buyers one clear place to work.
+            LiveInAus gives job seekers, employers, freelancers, and service buyers one clear place to work.
             Create a verified profile, search real opportunities, post vacancies, sell services, upload CVs, and build
             ratings while private contact details stay protected.
           </p>
         </div>
-        <div className="intro-flow-panel" aria-label="TopJobs verified work flow">
+        <div className="intro-flow-panel" aria-label="LiveInAus verified work flow">
           {[
             [UserCheck, 'Verified profile', 'Create account and confirm email OTP'],
             [FileUp, 'CV and skills', 'Show experience, portfolio, and location'],
@@ -247,7 +414,7 @@ function Home({ setActivePage, marketplace, onOpenVertical }) {
             [ShieldCheck, 'Protected contact', 'Details stay private until checks complete']
           ].map(([Icon, title, text], index) => (
             <article className="intro-flow-card" style={{ '--flow-delay': `${index * 140}ms` }} key={title}>
-              <Icon size={20} />
+              <IconOrbit><Icon size={20} /></IconOrbit>
               <div>
                 <strong>{title}</strong>
                 <span>{text}</span>
@@ -267,7 +434,7 @@ function Home({ setActivePage, marketplace, onOpenVertical }) {
         <div className="benefit-grid">
           {benefitCards.map(({ icon: Icon, title, text }) => (
             <article className="benefit-card" key={title}>
-              <Icon size={21} />
+              <IconOrbit><Icon size={21} /></IconOrbit>
               <h3>{title}</h3>
               <p>{text}</p>
             </article>
@@ -286,7 +453,7 @@ function Home({ setActivePage, marketplace, onOpenVertical }) {
         <div className="marketplace-feature-copy">
           <span className="eyebrow">Our solution</span>
           <h2>Everything a serious job marketplace needs in one professional platform</h2>
-          <p>TopJobs Thejan helps users understand who they are working with before contact details are shared. Employers can find applicants, job seekers can apply with CVs, freelancers can publish services, and every side can earn feedback after completed work.</p>
+          <p>LiveInAus helps users understand who they are working with before contact details are shared. Employers can find applicants, job seekers can apply with CVs, freelancers can publish services, and every side can earn feedback after completed work.</p>
           <div className="solution-detail-grid">
             <div><CheckCircle2 size={20} /><span>Verified signup with email OTP</span></div>
             <div><CheckCircle2 size={20} /><span>CV, skills, experience, and profile details</span></div>
@@ -299,7 +466,7 @@ function Home({ setActivePage, marketplace, onOpenVertical }) {
       <section className="section marketplace-flow">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">How TopJobs Thejan works</span>
+            <span className="eyebrow">How LiveInAus works</span>
             <h2>Built for job seekers, employers, and freelancers</h2>
             <p>Create a verified profile, post jobs or services, apply safely, and track work status without exposing private contact details first.</p>
           </div>
@@ -352,7 +519,158 @@ function Home({ setActivePage, marketplace, onOpenVertical }) {
           <span>Email verification is required before posting or applying. Contact details stay hidden from the public marketplace.</span>
         </div>
       </section>
+      <ReviewsSection currentUser={currentUser} setActivePage={setActivePage} />
+      <ChatWidget />
     </>
+  );
+}
+
+function ReviewsSection({ currentUser, setActivePage }) {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [rating, setRating] = useState(5);
+  const [feedback, setFeedback] = useState('');
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+  const [posting, setPosting] = useState(false);
+
+  async function loadReviews() {
+    setLoading(true);
+    try {
+      setReviews(await apiRequest('/reviews'));
+    } catch {
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadReviews();
+  }, []);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [reviews.length]);
+
+  useEffect(() => {
+    if (reviews.length < 2) return;
+    const timer = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % reviews.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [reviews.length]);
+
+  function goTo(index) {
+    setActiveIndex(index);
+  }
+
+  function goPrev() {
+    setActiveIndex((current) => (current - 1 + reviews.length) % reviews.length);
+  }
+
+  function goNext() {
+    setActiveIndex((current) => (current + 1) % reviews.length);
+  }
+
+  async function submitReview() {
+    if (!currentUser) {
+      setError('Please login before writing a review.');
+      setActivePage('login');
+      return;
+    }
+
+    if (!currentUser.isEmailVerified) {
+      setError('Email verification is required before writing a review.');
+      setActivePage('profile');
+      return;
+    }
+
+    if (!feedback.trim()) {
+      setError('Please write a few words about your experience.');
+      return;
+    }
+
+    setNotice('');
+    setError('');
+    setPosting(true);
+    try {
+      await apiRequest('/reviews', { method: 'POST', body: JSON.stringify({ rating, feedback }) });
+      setNotice('Thanks! Your review is submitted and will appear here once approved by an admin.');
+      setFeedback('');
+      setRating(5);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  const active = reviews[activeIndex];
+
+  return (
+    <section className="section reviews-section">
+      <div className="section-heading">
+        <div>
+          <span className="eyebrow"><MessageSquareMore size={16} /> Community reviews</span>
+          <h2>What LiveInAus members are saying</h2>
+          <p>Real feedback from job seekers, employers, and freelancers who use the platform.</p>
+        </div>
+      </div>
+      <div className="reviews-layout">
+        <div className="reviews-slider">
+          {loading ? (
+            <div className="admin-loading"><Clock3 className="spin" size={22} /> Loading reviews...</div>
+          ) : active ? (
+            <>
+              <div className="review-slide-card" key={active._id}>
+                <RatingComponent value={active.rating} />
+                <p className="review-slide-text">&ldquo;{active.feedback}&rdquo;</p>
+                <span className="review-slide-author">{active.reviewer?.email || 'LiveInAus member'}</span>
+              </div>
+              {reviews.length > 1 ? (
+                <div className="review-slide-controls">
+                  <button type="button" className="icon-button" onClick={goPrev} aria-label="Previous review"><ArrowRight className="flip-x" size={16} /></button>
+                  <div className="review-slide-dots">
+                    {reviews.map((review, index) => (
+                      <button
+                        type="button"
+                        key={review._id}
+                        className={`review-slide-dot ${index === activeIndex ? 'active' : ''}`}
+                        onClick={() => goTo(index)}
+                        aria-label={`Show review ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                  <button type="button" className="icon-button" onClick={goNext} aria-label="Next review"><ArrowRight size={16} /></button>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <EmptyHomeState text="No reviews yet. Be the first to share your experience." />
+          )}
+        </div>
+        <div className="form-shell review-form-shell">
+          <h3>Write a review</h3>
+          <FeedbackNotice>{notice}</FeedbackNotice>
+          <FeedbackNotice type="error">{error}</FeedbackNotice>
+          {currentUser && currentUser.isEmailVerified ? (
+            <>
+              <RatingComponent value={rating} interactive onChange={setRating} />
+              <textarea placeholder="Share your experience with LiveInAus..." value={feedback} onChange={(event) => setFeedback(event.target.value)} />
+              <button className="primary-button" disabled={posting} onClick={submitReview}>{posting ? 'Submitting...' : 'Submit Review'}</button>
+            </>
+          ) : (
+            <div className="auth-inline-card">
+              <ShieldCheck size={24} />
+              <p>{currentUser ? 'Verify your email to write a review.' : 'Login to write a review. Everyone can read approved reviews.'}</p>
+              <button className="primary-button" onClick={() => setActivePage(currentUser ? 'profile' : 'login')}>{currentUser ? 'Verify Email' : 'Login'}</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -2269,7 +2587,7 @@ function resolveInitialTheme() {
     // ignore storage errors
   }
 
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'dark';
 }
 
 function resolveInitialRoute() {
@@ -2469,7 +2787,7 @@ export default function App() {
   }
 
   const pages = {
-    home: <Home setActivePage={setActivePage} marketplace={marketplace} onOpenVertical={openVertical} />,
+    home: <Home setActivePage={setActivePage} marketplace={marketplace} onOpenVertical={openVertical} currentUser={currentUser} />,
     jobs: <JobsPage marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onOpenJob={openJobDetails} appliedJobIds={appliedJobIds} onJobApplied={markJobApplied} />,
     jobDetail: <JobDetailPage jobId={jobDetailId} marketplace={marketplace} currentUser={currentUser} setActivePage={setActivePage} onBack={() => setActivePage('jobs')} appliedJobIds={appliedJobIds} onJobApplied={markJobApplied} />,
     profile: <AuthRequired currentUser={currentUser} setActivePage={setActivePage}><ProfilePage currentUser={currentUser} setActivePage={setActivePage} /></AuthRequired>,
@@ -2493,9 +2811,16 @@ export default function App() {
 
   return (
     <div className={`app theme-${theme}`}>
-      <Navbar activePage={activePage === 'jobDetail' ? 'jobs' : activePage === 'freelanceDetail' ? 'freelance' : activePage === 'listingDetail' ? 'platformVertical' : activePage} setActivePage={setActivePage} currentUser={currentUser} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} onOpenVertical={openVertical} />
-      {pages[activePage]}
-      <Footer />
+      <div className="app-ambient-decor" aria-hidden="true">
+        <img src={floatingParticles} className="ambient-decor-particles" alt="" />
+        <img src={driftingLeaves} className="ambient-decor-leaves" alt="" />
+        <img src={flowingLines} className="ambient-decor-lines" alt="" />
+      </div>
+      <div className="app-content">
+        <Navbar activePage={activePage === 'jobDetail' ? 'jobs' : activePage === 'freelanceDetail' ? 'freelance' : activePage === 'listingDetail' ? 'platformVertical' : activePage} setActivePage={setActivePage} currentUser={currentUser} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} onOpenVertical={openVertical} />
+        {pages[activePage]}
+        <Footer />
+      </div>
     </div>
   );
 }

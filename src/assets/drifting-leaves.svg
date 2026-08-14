@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" role="img" aria-label="Drifting eucalyptus leaves">
+  <defs><filter id="soft"><feGaussianBlur stdDeviation=".35"/></filter></defs>
+  <g fill="#66715B" opacity=".75" filter="url(#soft)">
+    <g transform="translate(110 90)"><ellipse rx="14" ry="38" transform="rotate(-35)"/><animateTransform attributeName="transform" type="translate" values="110 90;145 170;90 260;110 90" dur="14s" repeatCount="indefinite" additive="replace"/></g>
+    <g transform="translate(730 80)"><ellipse rx="11" ry="32" transform="rotate(40)"/><animateTransform attributeName="transform" type="translate" values="730 80;690 180;750 310;730 80" dur="17s" begin="-5s" repeatCount="indefinite" additive="replace"/></g>
+    <g transform="translate(440 30)" opacity=".55"><ellipse rx="9" ry="27" transform="rotate(-12)"/><animateTransform attributeName="transform" type="translate" values="440 30;470 130;420 230;440 30" dur="12s" begin="-3s" repeatCount="indefinite" additive="replace"/></g>
+  </g>
+  <g fill="#C8753B" opacity=".64">
+    <g transform="translate(220 40)"><ellipse rx="10" ry="29" transform="rotate(28)"/><animateTransform attributeName="transform" type="translate" values="220 40;185 155;250 290;220 40" dur="16s" begin="-7s" repeatCount="indefinite" additive="replace"/></g>
+    <g transform="translate(620 10)"><ellipse rx="8" ry="24" transform="rotate(-45)"/><animateTransform attributeName="transform" type="translate" values="620 10;650 125;590 270;620 10" dur="13s" begin="-4s" repeatCount="indefinite" additive="replace"/></g>
+  </g>
+</svg>

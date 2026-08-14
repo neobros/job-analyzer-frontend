@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ArrowRight, BriefcaseBusiness, Building2, CheckCircle2, Globe2, KeyRound, LoaderCircle, Mail, MapPin, Rocket, ShieldCheck, Sparkles, User } from 'lucide-react';
+import { AlertCircle, ArrowRight, Building2, CheckCircle2, Globe2, KeyRound, LoaderCircle, Mail, MapPin, Rocket, ShieldCheck, Sparkles, User } from 'lucide-react';
 import { apiRequest } from '../api.js';
 import CustomSelect from './CustomSelect.jsx';
 import authImage from '../assets/marketplace-slide-1.png';
 import authImageTwo from '../assets/marketplace-slide-3.png';
+import liveInAusLogo from '../assets/liveinaus-logo.png';
 
 const roleOptions = [
   { value: 'job_seeker', label: 'Job seeker', note: 'Apply for approved jobs', icon: User },
@@ -123,8 +124,7 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
     <section className="auth-shell">
       <div className="auth-panel">
         <div className="auth-logo-row">
-          <span className="brand-mark"><BriefcaseBusiness size={22} /></span>
-          <strong>TopJobs Thejan</strong>
+          <img src={liveInAusLogo} alt="LiveInAus" className="brand-logo" />
         </div>
         <span className="eyebrow"><ShieldCheck size={16} /> Email verification required</span>
         <h1>{isSignup ? 'Create your global work profile' : 'Welcome back'}</h1>
@@ -200,7 +200,7 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
           {!isSignup ? <button className="link-button" type="button">Forgot password?</button> : null}
           {onSwitchMode ? (
             <button className="auth-switch-button" type="button" onClick={onSwitchMode}>
-              {isSignup ? 'Already registered? Login' : 'New to TopJobs? Create account'}
+              {isSignup ? 'Already registered? Login' : 'New to LiveInAus? Create account'}
               <ArrowRight size={16} />
             </button>
           ) : null}
