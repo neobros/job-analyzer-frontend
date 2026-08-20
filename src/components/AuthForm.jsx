@@ -28,6 +28,9 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
   const [pendingOtp, setPendingOtp] = useState(false);
   const [otp, setOtp] = useState('');
   const [devOtp, setDevOtp] = useState('');
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotStage, setForgotStage] = useState('request');
+  const [forgotForm, setForgotForm] = useState({ email: '', otp: '', password: '' });
 
   useEffect(() => {
     if (!isSignup) return;
@@ -119,6 +122,66 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
     }
   }
 
+  function openForgotPassword() {
+    setForgotMode(true);
+    setForgotStage('request');
+    setForgotForm({ email: form.email, otp: '', password: '' });
+    setError('');
+    setSuccess('');
+  }
+
+  function closeForgotPassword() {
+    setForgotMode(false);
+    setError('');
+    setSuccess('');
+  }
+
+  function updateForgotField(event) {
+    const { name, value } = event.target;
+    setForgotForm((current) => ({ ...current, [name]: value }));
+  }
+
+  async function requestPasswordReset(event) {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const data = await apiRequest('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email: forgotForm.email })
+      });
+      setForgotStage('reset');
+      setSuccess(`If an account exists for this email, a reset code was sent.${data.devOtp ? ` Development OTP: ${data.devOtp}` : ''}`);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitPasswordReset(event) {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await apiRequest('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ email: forgotForm.email, otp: forgotForm.otp, password: forgotForm.password })
+      });
+      setForgotMode(false);
+      setForm((current) => ({ ...current, email: forgotForm.email, password: '' }));
+      setSuccess('Password updated. Log in with your new password.');
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="auth-shell">
       <div className="auth-panel">
@@ -133,6 +196,29 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
           <span><ShieldCheck size={15} /> OTP protected</span>
           <span><Sparkles size={15} /> Admin checked</span>
         </div>
+        {forgotMode ? (
+          <form className="stack-form" onSubmit={forgotStage === 'request' ? requestPasswordReset : submitPasswordReset}>
+            <label><Mail size={18} /><input name="email" value={forgotForm.email} onChange={updateForgotField} type="email" placeholder="Email address" required disabled={forgotStage === 'reset'} /></label>
+            {forgotStage === 'reset' ? (
+              <>
+                <label><ShieldCheck size={18} /><input name="otp" value={forgotForm.otp} onChange={updateForgotField} placeholder="Enter 6-digit reset code" inputMode="numeric" required /></label>
+                <label><KeyRound size={18} /><input name="password" value={forgotForm.password} onChange={updateForgotField} type="password" placeholder="New strong password" required /></label>
+              </>
+            ) : null}
+            {error ? <div className="auth-message error"><AlertCircle size={17} /> {error}</div> : null}
+            {success ? <div className="auth-message success"><CheckCircle2 size={17} /> {success}</div> : null}
+            <button className="primary-button" type="submit" disabled={loading}>
+              {loading ? <LoaderCircle className="spin" size={17} /> : null}
+              {loading ? 'Please wait...' : forgotStage === 'request' ? 'Send Reset Code' : 'Reset Password'}
+            </button>
+            {forgotStage === 'reset' ? (
+              <button className="ghost-button" type="button" disabled={loading} onClick={requestPasswordReset}>Resend Code</button>
+            ) : null}
+            <button className="auth-switch-button" type="button" onClick={closeForgotPassword}>
+              Back to login <ArrowRight size={16} />
+            </button>
+          </form>
+        ) : (
         <form className="stack-form" onSubmit={handleSubmit}>
           {isSignup ? (
             <label><User size={18} /><input name="fullName" value={form.fullName} onChange={updateField} placeholder="Full name" required /></label>
@@ -196,7 +282,7 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
             {loading ? <LoaderCircle className="spin" size={17} /> : null}
             {loading ? 'Please wait...' : isSignup ? 'Register and Send OTP' : 'Login'}
           </button>
-          {!isSignup ? <button className="link-button" type="button">Forgot password?</button> : null}
+          {!isSignup ? <button className="link-button" type="button" onClick={openForgotPassword}>Forgot password?</button> : null}
           {onSwitchMode ? (
             <button className="auth-switch-button" type="button" onClick={onSwitchMode}>
               {isSignup ? 'Already registered? Login' : 'New to LiveInAus? Create account'}
@@ -204,6 +290,7 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
             </button>
           ) : null}
         </form>
+        )}
       </div>
       <aside className="otp-panel auth-visual-panel">
         <div className="auth-image-stack">
