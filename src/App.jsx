@@ -14,15 +14,15 @@ import CustomSelect from './components/CustomSelect.jsx';
 import AdminSidebar from './components/AdminSidebar.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
 import RatingComponent from './components/RatingComponent.jsx';
-import { apiRequest, API_BASE_URL } from './api.js';
+import { apiRequest, API_BASE_URL, SESSION_EXPIRED_EVENT } from './api.js';
 import { VERTICALS, VERTICAL_DETAIL_FIELDS, findVertical } from './constants/verticals.js';
 import heroImage from './assets/hero-ai-marketplace.png';
 import mobileAppComingSoon from './assets/mobile-app-coming-soon.png';
 
 const RESULTS_PAGE_SIZE = 9;
-import marketplaceSlide1 from './assets/marketplace-slide-1.png';
+import marketplaceSlide1 from './assets/marketplace-slide-1.jpg';
 import marketplaceSlide2 from './assets/marketplace-slide-2.jpg';
-import marketplaceSlide3 from './assets/marketplace-slide-3.png';
+import marketplaceSlide3 from './assets/marketplace-slide-3.jpg';
 import marketplaceSlide4 from './assets/marketplace-slide-4.jpg';
 import driftingLeaves from './assets/drifting-leaves.svg';
 import floatingParticles from './assets/floating-particles.svg';
@@ -43,6 +43,18 @@ import logoKandyCrown from './assets/partners/kandy-crown.png';
 import logoSkillCityFacility from './assets/partners/skill-city-facility-solutions.jpeg';
 import logoSkillCitySecurity from './assets/partners/skill-city-security.png';
 import logoSkillsyncAustralia from './assets/partners/skillsync-australia.jpeg';
+import logoAusasia from './assets/partners/ausasia-education-migration.jpeg';
+import logoHeavenlyEvents from './assets/partners/heavenly-events.jpeg';
+import logoE4r from './assets/partners/e4r-education-recruiting.jpeg';
+import logoTrendzii from './assets/partners/trendzii.jpeg';
+import logoBrandCrafters from './assets/partners/brand-crafters.jpeg';
+import logoBraxdCrafters from './assets/partners/braxd-crafters.jpeg';
+import logoAeyeCreations from './assets/partners/aeye-creations.jpeg';
+import logoDEntertainment from './assets/partners/d-entertainment.jpeg';
+import logoDarkcloudProductions from './assets/partners/darkcloud-productions.jpeg';
+import logoFireDanceCostume from './assets/partners/traditional-fire-dance-costume.jpeg';
+import logoInkorax from './assets/partners/inkorax.jpeg';
+import logoLangrowNaturals from './assets/partners/langrow-naturals.jpeg';
 
 const PARTNER_LOGOS = [
   { src: logoStudioAmazingPlus, name: 'Studio Amazing Plus' },
@@ -60,7 +72,19 @@ const PARTNER_LOGOS = [
   { src: logoZeylonTv, name: 'Zeylon TV' },
   { src: logoSweetTamarind, name: 'Sweet Tamarind' },
   { src: logoNirosKitchen, name: "Niro's Kitchen" },
-  { src: logoPartnerBowl, name: 'Partner' }
+  { src: logoPartnerBowl, name: 'Partner' },
+  { src: logoAusasia, name: 'Ausasia Education & Migration Consultants' },
+  { src: logoHeavenlyEvents, name: 'Heavenly Events' },
+  { src: logoE4r, name: 'E4R Education & Recruiting' },
+  { src: logoTrendzii, name: 'Trendzii' },
+  { src: logoBrandCrafters, name: 'Brand Crafters' },
+  { src: logoBraxdCrafters, name: 'BRAXD Crafters' },
+  { src: logoAeyeCreations, name: 'AEye Creations' },
+  { src: logoDEntertainment, name: 'D Entertainment' },
+  { src: logoDarkcloudProductions, name: 'Darkcloud Productions' },
+  { src: logoFireDanceCostume, name: 'Traditional Fire Dance Costume' },
+  { src: logoInkorax, name: 'Inkorax' },
+  { src: logoLangrowNaturals, name: 'Langrow Naturals' }
 ];
 
 function useMarketplaceData() {
@@ -2999,6 +3023,31 @@ export default function App() {
     setActivePage('home');
   }
 
+  const [sessionExpiredMessage, setSessionExpiredMessage] = useState('');
+
+  useEffect(() => {
+    // A page can fire several requests in parallel (e.g. the admin dashboard's
+    // Promise.all of endpoints); an expired/invalid token makes all of them
+    // 401 at once, so this event can dispatch several times in a row. Read
+    // and clear currentUser via the functional updater so only the first
+    // firing acts — later ones see current === null and no-op instead of
+    // re-running the redirect with a stale (already-cleared) role.
+    function handleSessionExpired() {
+      setCurrentUser((current) => {
+        if (!current) return current;
+        setSessionExpiredMessage('Your session has expired. Please log in again.');
+        setActivePage(current.role === 'admin' ? 'adminLogin' : 'login');
+        return null;
+      });
+    }
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+  }, []);
+
+  useEffect(() => {
+    if (activePage !== 'login' && activePage !== 'adminLogin') setSessionExpiredMessage('');
+  }, [activePage]);
+
   function openJobDetails(job) {
     if (!job?._id) return;
     setJobDetailId(job._id);
@@ -3049,8 +3098,8 @@ export default function App() {
     platformVertical: <VerticalListingsPage vertical={activeVertical} currentUser={currentUser} setActivePage={setActivePage} onOpenListing={openListingDetails} />,
     listingDetail: <ListingDetailPage listingId={listingDetailId} vertical={activeVertical} currentUser={currentUser} setActivePage={setActivePage} onBack={() => setActivePage('platformVertical')} />,
     admin: <AdminDashboard onLogout={logout} />,
-    adminLogin: <main className="auth-page admin-page"><AdminLoginForm onAuthSuccess={handleAuthSuccess} /></main>,
-    login: <main className="auth-page"><AuthForm mode="login" onAuthSuccess={handleAuthSuccess} onSwitchMode={() => setActivePage('signup')} /></main>,
+    adminLogin: <main className="auth-page admin-page"><AdminLoginForm onAuthSuccess={handleAuthSuccess} sessionExpiredMessage={sessionExpiredMessage} /></main>,
+    login: <main className="auth-page"><AuthForm mode="login" onAuthSuccess={handleAuthSuccess} onSwitchMode={() => setActivePage('signup')} sessionExpiredMessage={sessionExpiredMessage} /></main>,
     signup: <main className="auth-page"><AuthForm mode="signup" onAuthSuccess={handleAuthSuccess} onSwitchMode={() => setActivePage('login')} /></main>
   };
 

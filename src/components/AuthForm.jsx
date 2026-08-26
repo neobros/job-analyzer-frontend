@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { AlertCircle, ArrowRight, CheckCircle2, Globe2, KeyRound, LoaderCircle, Mail, MapPin, Rocket, ShieldCheck, Sparkles, User } from 'lucide-react';
 import { apiRequest } from '../api.js';
 import CustomSelect from './CustomSelect.jsx';
-import authImage from '../assets/marketplace-slide-1.png';
-import authImageTwo from '../assets/marketplace-slide-3.png';
+import authImage from '../assets/marketplace-slide-1.jpg';
+import authImageTwo from '../assets/marketplace-slide-3.jpg';
 import liveInAusLogo from '../assets/liveinaus-logo.png';
 
 const roleOptions = [
@@ -11,7 +11,7 @@ const roleOptions = [
   { value: 'supplier', label: 'Supplier', note: 'Post jobs, gigs, and listings for review', icon: Rocket }
 ];
 
-export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode }) {
+export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode, sessionExpiredMessage }) {
   const isSignup = mode === 'signup';
   const [form, setForm] = useState({
     fullName: '',
@@ -24,6 +24,10 @@ export default function AuthForm({ mode = 'signup', onAuthSuccess, onSwitchMode 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    if (sessionExpiredMessage) setError(sessionExpiredMessage);
+  }, [sessionExpiredMessage]);
   const [locations, setLocations] = useState([]);
   const [pendingOtp, setPendingOtp] = useState(false);
   const [otp, setOtp] = useState('');
