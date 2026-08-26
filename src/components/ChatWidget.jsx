@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LoaderCircle, Send, X } from 'lucide-react';
 import { apiRequest } from '../api.js';
 import aiAgentAvatar from '../assets/ai-agent-avatar.jpeg';
+import aiAgentAvatarFull from '../assets/ai-agent-avatar-full.png';
 
 const GREETING = "Hi! I'm the LiveInAus Assistant. Ask me about jobs, listings, categories, or how the platform works.";
 
@@ -87,8 +88,13 @@ export default function ChatWidget() {
         </button>
       ) : null}
       <button type="button" className="chat-launcher" onClick={() => setOpen((current) => !current)} aria-label={open ? 'Close chat' : 'Open LiveInAus Assistant chat'}>
-        <span className="chat-launcher-ring" aria-hidden="true" />
-        <img src={aiAgentAvatar} alt="" className="chat-launcher-avatar" />
+        <span className="chat-launcher-glow" aria-hidden="true" />
+        <img src={aiAgentAvatarFull} alt="" className="chat-launcher-avatar" />
+        <span
+          className="chat-launcher-shimmer"
+          aria-hidden="true"
+          style={{ WebkitMaskImage: `url(${aiAgentAvatarFull})`, maskImage: `url(${aiAgentAvatarFull})` }}
+        />
         <span className="chat-live-dot chat-live-dot-launcher" aria-hidden="true" />
       </button>
     </div>

@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, KeyRound, LoaderCircle, Mail, ShieldCheck } from 'lucide-react';
 import { apiRequest } from '../api.js';
 import liveInAusLogo from '../assets/liveinaus-logo.png';
 
-export default function AdminLoginForm({ onAuthSuccess }) {
+export default function AdminLoginForm({ onAuthSuccess, sessionExpiredMessage }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [pendingOtp, setPendingOtp] = useState(false);
   const [otp, setOtp] = useState('');
+
+  useEffect(() => {
+    if (sessionExpiredMessage) setError(sessionExpiredMessage);
+  }, [sessionExpiredMessage]);
 
   function updateField(event) {
     const { name, value } = event.target;
