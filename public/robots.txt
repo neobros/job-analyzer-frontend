@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin_login
+Disallow: /profile
+Disallow: /employer
+
+Sitemap: https://www.liveinaus.com.au/sitemap.xml

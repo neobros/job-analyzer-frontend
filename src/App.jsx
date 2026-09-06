@@ -16,8 +16,10 @@ import AdminDashboard from './components/AdminDashboard.jsx';
 import RatingComponent from './components/RatingComponent.jsx';
 import { apiRequest, API_BASE_URL, SESSION_EXPIRED_EVENT } from './api.js';
 import { VERTICALS, VERTICAL_DETAIL_FIELDS, findVertical } from './constants/verticals.js';
-import heroImage from './assets/hero-ai-marketplace.png';
-import mobileAppComingSoon from './assets/mobile-app-coming-soon.png';
+import { PAGE_META } from './constants/seo.js';
+import { useDocumentMeta } from './hooks/useDocumentMeta.js';
+import heroImage from './assets/hero-ai-marketplace.jpg';
+import mobileAppComingSoon from './assets/mobile-app-coming-soon.jpg';
 
 const RESULTS_PAGE_SIZE = 9;
 import marketplaceSlide1 from './assets/marketplace-slide-1.jpg';
@@ -1061,6 +1063,16 @@ function JobDetailPage({ jobId, marketplace, currentUser, setActivePage, onBack,
     }
   }
 
+  useDocumentMeta(
+    job
+      ? {
+          title: `${job.title} at ${job.company || 'Verified employer'}`,
+          description: (job.description || `${job.title} job opportunity posted on LiveInAus.`).slice(0, 160),
+          path: `/jobs/${job._id}`
+        }
+      : { title: 'Job Details', path: `/jobs/${jobId}` }
+  );
+
   if (loading && !job) {
     return (
       <section className="page job-detail-page">
@@ -1093,8 +1105,31 @@ function JobDetailPage({ jobId, marketplace, currentUser, setActivePage, onBack,
     .map((part) => part[0]?.toUpperCase())
     .join('') || 'TJ';
 
+  const jobPostingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: job.title,
+    description: job.description || `${job.title} at ${company}.`,
+    datePosted: postedDate.toISOString(),
+    employmentType: employmentTypeSchema(job.type),
+    hiringOrganization: { '@type': 'Organization', name: company },
+    identifier: { '@type': 'PropertyValue', name: 'LiveInAus', value: String(job._id) },
+    ...(job.type === 'remote'
+      ? { jobLocationType: 'TELECOMMUTE', applicantLocationRequirements: { '@type': 'Country', name: 'Australia' } }
+      : {
+          jobLocation: {
+            '@type': 'Place',
+            address: { '@type': 'PostalAddress', addressLocality: job.city || undefined, addressCountry: job.country || 'AU' }
+          }
+        }),
+    ...(parseSalaryAmount(job.salary)
+      ? { baseSalary: { '@type': 'MonetaryAmount', currency: 'AUD', value: { '@type': 'QuantitativeValue', value: parseSalaryAmount(job.salary), unitText: 'YEAR' } } }
+      : {})
+  };
+
   return (
     <section className="page job-detail-page">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingSchema) }} />
       <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Jobs</button>
 
       <div className={`job-detail-hero ${hasPriorityBadge ? 'gold-card' : ''}`}>
@@ -1221,6 +1256,16 @@ function GigDetailPage({ gigId, marketplace, currentUser, setActivePage, onBack 
       setRequesting(false);
     }
   }
+
+  useDocumentMeta(
+    gig
+      ? {
+          title: `${gig.title} | Freelance Service`,
+          description: (gig.description || `${gig.title} — freelance service available on LiveInAus.`).slice(0, 160),
+          path: `/freelance/${gig._id}`
+        }
+      : { title: 'Freelance Service Details', path: `/freelance/${gigId}` }
+  );
 
   if (loading && !gig) {
     return (
@@ -2457,6 +2502,17 @@ function ListingDetailPage({ listingId, vertical, currentUser, setActivePage, on
 
   const verticalInfo = findVertical(listing?.vertical || vertical);
   const VerticalIcon = verticalInfo?.icon || ShieldCheck;
+  const location = [listing?.city, listing?.country].filter(Boolean).join(', ') || 'Worldwide';
+
+  useDocumentMeta(
+    listing
+      ? {
+          title: `${listing.title} | ${verticalInfo?.name || 'Listings'}`,
+          description: (listing.description || `${listing.title} — ${verticalInfo?.name || 'listing'} available on LiveInAus in ${location}.`).slice(0, 160),
+          path: `/platform/${listing.vertical || vertical}/${listing._id}`
+        }
+      : { title: verticalInfo?.name || 'Listing Details', path: `/platform/${vertical}/${listingId}` }
+  );
 
   if (loading) {
     return (
@@ -2476,7 +2532,6 @@ function ListingDetailPage({ listingId, vertical, currentUser, setActivePage, on
   }
 
   const images = listing.images || [];
-  const location = [listing.city, listing.country].filter(Boolean).join(', ') || 'Worldwide';
   const priceLabel = Number(listing.price) ? `$${Number(listing.price).toLocaleString()}` : null;
   const detailEntries = Object.entries(listing.details || {}).filter(([, value]) => value !== '' && value !== null && value !== undefined);
 
@@ -2895,6 +2950,30 @@ function applicationJobId(application) {
   return String(job?._id || job || '');
 }
 
+const EMPLOYMENT_TYPE_SCHEMA = {
+  full_time: 'FULL_TIME',
+  part_time: 'PART_TIME',
+  contract: 'CONTRACTOR',
+  freelance: 'CONTRACTOR',
+  remote: 'FULL_TIME'
+};
+
+function employmentTypeSchema(type) {
+  return EMPLOYMENT_TYPE_SCHEMA[type] || 'OTHER';
+}
+
+// Best-effort numeric extraction from a free-text salary field (e.g. "$85,000",
+// "90k", "Negotiable") for JobPosting structured data. Returns null when no
+// number can be found so malformed baseSalary markup is never emitted.
+function parseSalaryAmount(salary) {
+  if (!salary) return null;
+  const match = String(salary).match(/([\d,]+(?:\.\d+)?)\s*(k)?/i);
+  if (!match) return null;
+  const raw = parseFloat(match[1].replace(/,/g, ''));
+  if (Number.isNaN(raw)) return null;
+  return match[2] ? raw * 1000 : raw;
+}
+
 export default function App() {
   const [activePage, setActivePage] = useState(() => resolveInitialRoute().page);
   const [jobDetailId, setJobDetailId] = useState(() => resolveInitialRoute().jobId);
@@ -2967,6 +3046,33 @@ export default function App() {
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+
+  // Generic per-route <title>/meta description/canonical for every page. Detail
+  // pages (job/gig/listing) call useDocumentMeta again once their own data
+  // loads, overriding this with the specific item's title and description.
+  const currentVertical = findVertical(activeVertical);
+  const genericMeta = PAGE_META[activePage] || PAGE_META.home;
+  const seoTitle =
+    activePage === 'platformVertical' || activePage === 'listingDetail'
+      ? currentVertical?.name || genericMeta.title
+      : genericMeta.title;
+  const seoDescription =
+    activePage === 'platformVertical' || activePage === 'listingDetail'
+      ? currentVertical?.tagline || genericMeta.description
+      : genericMeta.description;
+  const seoPath =
+    activePage === 'jobDetail'
+      ? (jobDetailId ? `/jobs/${jobDetailId}` : '/jobs')
+      : activePage === 'freelanceDetail'
+        ? (gigDetailId ? `/freelance/${gigDetailId}` : '/freelance')
+        : activePage === 'platformVertical'
+          ? (activeVertical ? `/platform/${activeVertical}` : '/platform')
+          : activePage === 'listingDetail'
+            ? (listingDetailId ? `/platform/${activeVertical}/${listingDetailId}` : `/platform/${activeVertical}`)
+            : activePage === 'admin'
+              ? '/admin'
+              : PAGE_TO_PATH[activePage] || '/';
+  useDocumentMeta({ title: seoTitle, description: seoDescription, path: seoPath });
 
   useScrollReveal(activePage);
   const [currentUser, setCurrentUser] = useState(() => {
