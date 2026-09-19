@@ -1,6 +1,7 @@
 import { MapPin, ShieldCheck } from 'lucide-react';
 import { findVertical } from '../constants/verticals.js';
 import { API_BASE_URL } from '../api.js';
+import ShareButton from './ShareButton.jsx';
 
 const UPLOAD_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
@@ -50,6 +51,7 @@ export default function ListingCard({ listing, onOpen, showStatus = false }) {
       <div className="listing-bottom">
         <span className="listing-location"><MapPin size={14} /> {location}</span>
         {priceLabel ? <strong className="listing-price">{priceLabel}</strong> : null}
+        <ShareButton path={`/platform/${listing.vertical}/${listing._id}`} title={listing.title} text={`${listing.title} — ${vertical?.name || 'listing'} on LiveInAus`} />
       </div>
     </article>
   );
