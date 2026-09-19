@@ -1,4 +1,5 @@
-import { BadgeCheck, Banknote, BriefcaseBusiness, CheckCircle2, Clock3, Heart, MapPin, Send, Share2, ShieldCheck } from 'lucide-react';
+import { BadgeCheck, Banknote, BriefcaseBusiness, CheckCircle2, Clock3, Heart, MapPin, Send, ShieldCheck } from 'lucide-react';
+import ShareButton from './ShareButton.jsx';
 
 export default function JobCard({ job, onApply, onOpen, applying = false, hasApplied = false }) {
   const company = job.company || 'Verified employer';
@@ -85,7 +86,7 @@ export default function JobCard({ job, onApply, onOpen, applying = false, hasApp
         </div>
         <div className="job-listing-actions">
           <span className="job-salary-pill"><Banknote size={15} /> {job.salary || 'Negotiable'}</span>
-          <button className="job-icon-action" type="button" aria-label="Share job" onClick={stopCardOpen}><Share2 size={18} /></button>
+          <ShareButton path={`/jobs/${job._id}`} title={job.title} text={`${job.title} at ${company} — via LiveInAus`} />
           <button className="job-icon-action" type="button" aria-label="Save job" onClick={stopCardOpen}><Heart size={19} /></button>
           <button className={`job-apply-button ${hasApplied ? 'applied-button' : ''}`} disabled={applying || hasApplied} onClick={(event) => { stopCardOpen(event); onApply?.(job); }}>
             {hasApplied ? 'Applied' : applying ? 'Applying...' : 'Apply'} {hasApplied ? <CheckCircle2 size={15} /> : <Send size={15} />}
