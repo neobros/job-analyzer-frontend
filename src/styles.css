@@ -6161,6 +6161,68 @@ body,
   background: #f3f5f7;
 }
 
+.share-button-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.detail-page-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.detail-page-topbar .share-button-wrap .job-icon-action {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+.share-menu {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  right: 0;
+  z-index: 40;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid rgba(166, 184, 198, 0.72);
+  border-radius: 14px;
+  padding: 7px;
+  background: #ffffff;
+  box-shadow: 0 22px 54px rgba(24, 43, 67, 0.18);
+  animation: shareMenuIn 0.16s ease both;
+}
+
+@keyframes shareMenuIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.share-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 38px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.share-menu button:hover {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
 .job-apply-button {
   min-height: 34px;
   display: inline-flex;
@@ -7109,6 +7171,20 @@ html[data-theme="dark"] .job-protected-note {
 html[data-theme="dark"] .job-tag-row span,
 html[data-theme="dark"] .job-icon-action:hover {
   color: var(--ink);
+  background: rgba(90, 162, 255, 0.12);
+}
+
+html[data-theme="dark"] .share-menu {
+  background: #17222e;
+  border-color: var(--glass-border);
+}
+
+html[data-theme="dark"] .share-menu button {
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .share-menu button:hover {
+  color: var(--aqua);
   background: rgba(90, 162, 255, 0.12);
 }
 

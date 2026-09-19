@@ -14,6 +14,7 @@ import CustomSelect from './components/CustomSelect.jsx';
 import AdminSidebar from './components/AdminSidebar.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
 import RatingComponent from './components/RatingComponent.jsx';
+import ShareButton from './components/ShareButton.jsx';
 import { apiRequest, API_BASE_URL, SESSION_EXPIRED_EVENT } from './api.js';
 import { VERTICALS, VERTICAL_DETAIL_FIELDS, findVertical } from './constants/verticals.js';
 import { PAGE_META } from './constants/seo.js';
@@ -333,6 +334,7 @@ function GigCard({ gig, onOpen }) {
       <div className="gig-bottom">
         <p>From <strong>{priceLabel}</strong></p>
         <p>{gig.deliveryTime || gig.delivery || 'Delivery agreed with admin'}</p>
+        <ShareButton path={`/freelance/${gig._id}`} title={gig.title} text={`${gig.title} — freelance service on LiveInAus`} />
       </div>
     </article>
   );
@@ -1130,7 +1132,10 @@ function JobDetailPage({ jobId, marketplace, currentUser, setActivePage, onBack,
   return (
     <section className="page job-detail-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingSchema) }} />
-      <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Jobs</button>
+      <div className="detail-page-topbar">
+        <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Jobs</button>
+        <ShareButton path={`/jobs/${job._id}`} title={job.title} text={`${job.title} at ${company} — via LiveInAus`} />
+      </div>
 
       <div className={`job-detail-hero ${hasPriorityBadge ? 'gold-card' : ''}`}>
         <div className="job-detail-main">
@@ -1297,7 +1302,10 @@ function GigDetailPage({ gigId, marketplace, currentUser, setActivePage, onBack 
 
   return (
     <section className="page gig-detail-page">
-      <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Freelance</button>
+      <div className="detail-page-topbar">
+        <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to Freelance</button>
+        <ShareButton path={`/freelance/${gig._id}`} title={gig.title} text={`${gig.title} — freelance service on LiveInAus`} />
+      </div>
 
       <div className={`gig-detail-hero ${hasPriorityBadge ? 'gold-card' : ''}`}>
         <div className="gig-detail-main">
@@ -2537,7 +2545,10 @@ function ListingDetailPage({ listingId, vertical, currentUser, setActivePage, on
 
   return (
     <section className="page listing-detail-page">
-      <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to {verticalInfo?.name || 'listings'}</button>
+      <div className="detail-page-topbar">
+        <button className="ghost-button job-detail-back" onClick={onBack}><ArrowRight className="flip-x" size={16} /> Back to {verticalInfo?.name || 'listings'}</button>
+        <ShareButton path={`/platform/${listing.vertical || vertical}/${listing._id}`} title={listing.title} text={`${listing.title} — ${verticalInfo?.name || 'listing'} on LiveInAus`} />
+      </div>
 
       <div className="gig-detail-hero">
         <div className="gig-detail-main">
